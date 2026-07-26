@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일본어 한자 퀴즈 — JLPT 문법·어휘 지문</title>
+<style>
+  :root{
+    --bg:#0f1420; --card:#1a2130; --card2:#232c3f; --line:#2d3850;
+    --text:#e8edf5; --sub:#9aa7bd; --accent:#5b8cff; --accent2:#7c5bff;
+    --ok:#33d69f; --ng:#ff5d6c; --gold:#ffc64b;
+  }
+  html{font-size:28px}           /* ← 기준 글씨 약 2배로 확대 */
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;
+    background:linear-gradient(160deg,#0f1420,#141b2b);
+    color:var(--text);min-height:100vh;padding:16px;line-height:1.55;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+  header{text-align:center;padding:18px 0 10px}
+  header h1{font-size:1.4rem;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{color:var(--sub);font-size:.8rem;margin-top:4px}
+
+  .tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap;justify-content:center}
+  .tab{padding:9px 16px;border-radius:999px;background:var(--card);color:var(--sub);
+    border:1px solid var(--line);cursor:pointer;font-size:.85rem;transition:.15s}
+  .tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+  .tab:hover{color:var(--text)}
+
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .25s}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ---- 학습 카드 ---- */
+  .searchbar{width:100%;padding:11px 14px;border-radius:12px;background:var(--card);
+    border:1px solid var(--line);color:var(--text);font-size:.85rem;margin-bottom:12px}
+  .searchbar::placeholder{color:var(--sub)}
+  .flash-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.8rem;color:var(--sub)}
+  .hide-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+  .hide-toggle input{width:16px;height:16px;accent-color:var(--accent)}
+  .wordcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+  .wordcard.flash{cursor:pointer}
+  .wordcard .top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .wordcard .kanji{font-size:1.7rem;font-weight:700;letter-spacing:2px}
+  .wordcard .yomi{color:var(--accent);font-size:.95rem}
+  .wordcard .mean{color:var(--gold);font-size:1rem;margin-left:auto;font-weight:600}
+  .chars{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+  .chrow{background:var(--card2);border-radius:10px;padding:11px 13px;display:flex;gap:12px;align-items:flex-start}
+  .chrow .c{font-size:1.6rem;font-weight:700;min-width:40px;text-align:center;line-height:1.1}
+  .chrow .cinfo{flex:1}
+  .chrow .cline{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+  .chrow .hun{color:var(--ok);font-weight:700;white-space:nowrap;font-size:.95rem}
+  .chrow .parts{color:var(--sub);font-size:.78rem}
+  .chrow .story{margin-top:5px;font-size:.82rem;color:var(--text);opacity:.96}
+  .notes{margin-top:7px;display:flex;flex-direction:column;gap:4px}
+  .note{font-size:.74rem;color:var(--sub);border-left:2px solid var(--accent);padding-left:8px;line-height:1.45}
+  .wordcard .hidden-blur{filter:blur(8px);opacity:.5;transition:.15s}
+
+  /* ---- 쓰기 연습 ---- */
+  .practice{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+  .practice-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-size:.82rem;color:var(--sub)}
+  .practice-head .ptitle{font-weight:700;color:var(--text)}
+  .guide-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;margin-left:auto}
+  .guide-toggle input{width:16px;height:16px;accent-color:var(--accent)}
+  .clearbtn{padding:6px 14px;border-radius:999px;background:var(--card2);color:var(--text);
+    border:1px solid var(--line);cursor:pointer;font-size:.75rem}
+  .clearbtn:hover{border-color:var(--accent)}
+  .prow{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .plabel{min-width:56px;text-align:center;flex-shrink:0}
+  .plabel .pchar{display:block;font-size:1.9rem;font-weight:700;line-height:1.1}
+  .plabel .phun{display:block;font-size:.62rem;color:var(--ok);font-weight:700}
+  .pcells{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+  .pcell{width:128px;height:128px;flex-shrink:0;background:#fbf7ec;border-radius:8px;touch-action:none;cursor:crosshair}
+  .plabel{min-width:64px}
+  .plabel .pchar{font-size:2.3rem}
+  /* 한자 표시는 일본어 명조체로(고딕보다 획 구분이 또렷) */
+  .kanji,.chrow .c,.plabel .pchar,.qmain,.explain .ex-word,.cf-k{
+    font-family:'Yu Mincho','Hiragino Mincho ProN','Noto Serif JP','MS Mincho',serif}
+  /* 합친 쓰기 연습장(한 판) */
+  .psheet{width:100%;background:#fbf7ec;border-radius:10px;touch-action:none;cursor:crosshair;display:block}
+  /* 헷갈리는 글자·단어 설명 */
+  .confuse{margin-top:12px;background:#fbf1ea;border:1px solid #e6cbb6;border-radius:10px;
+    padding:11px 13px;font-size:.82rem;color:#7a4a2a;line-height:1.6}
+  .confuse b{color:#a8582a}
+  .cf-line{margin-bottom:8px}
+  .cf-line:last-child{margin-bottom:0}
+  .cf-words{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+  .cf-w{display:flex;align-items:baseline;gap:10px;background:#fff;border:1px solid #ecd9c5;
+    border-radius:8px;padding:5px 10px}
+  .cf-k{font-size:1.05rem;font-weight:700;min-width:2.8em}
+  .cf-y{font-size:.72rem;color:#3a6ea5;min-width:5em}
+  .cf-m{font-size:.78rem;color:#7a4a2a}
+  .explain .confuse{margin-top:10px}
+  .nav{display:flex;gap:10px;margin-top:14px}
+  .navbtn{flex:1}
+  .nav-hint{text-align:center;color:var(--sub);font-size:.68rem;margin-top:10px}
+
+  /* ---- 퀴즈 ---- */
+  .quiz-setup{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center}
+  .quiz-setup h3{margin-bottom:14px;font-size:.95rem}
+  .qtypes{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .qopt{display:flex;align-items:center;gap:10px;background:var(--card2);padding:12px 14px;
+    border-radius:10px;cursor:pointer;text-align:left;border:1px solid transparent;font-size:.85rem}
+  .qopt input{width:20px;height:20px;accent-color:var(--accent)}
+  .btn{padding:12px 22px;border:none;border-radius:12px;font-size:.9rem;font-weight:600;
+    cursor:pointer;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;transition:.15s}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line)}
+
+  .qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:.82rem;color:var(--sub)}
+  .bar{height:6px;background:var(--card);border-radius:999px;overflow:hidden;margin-bottom:18px}
+  .bar>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 18px;text-align:center}
+  .qlabel{color:var(--sub);font-size:.8rem;margin-bottom:10px}
+  .qmain{font-size:2.1rem;font-weight:700;letter-spacing:2px;margin-bottom:6px}
+  .qsub{color:var(--accent);margin-bottom:20px;min-height:1.2em;font-size:.9rem}
+  .choices{display:grid;gap:10px}
+  .choice{padding:14px;border-radius:12px;background:var(--card2);border:1px solid var(--line);
+    cursor:pointer;font-size:.9rem;transition:.12s;text-align:center}
+  .choice:hover{border-color:var(--accent)}
+  .choice.correct{background:rgba(51,214,159,.18);border-color:var(--ok);color:var(--ok);font-weight:700}
+  .choice.wrong{background:rgba(255,93,108,.16);border-color:var(--ng);color:var(--ng)}
+  .choice.disabled{cursor:default;pointer-events:none}
+  .explain{margin-top:16px;background:var(--card2);border-radius:12px;padding:14px;text-align:left;display:none}
+  .explain.show{display:block;animation:fade .2s}
+  .explain .ex-word{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+  .explain .ex-word small{color:var(--accent);font-weight:400;margin-left:6px;font-size:.7rem}
+  .explain .ex-c{color:var(--sub);font-size:.82rem;margin-top:8px}
+  .explain .ex-c b{color:var(--ok)}
+  .explain .ex-s{color:var(--text);font-size:.82rem;margin-top:3px}
+  .explain .note{margin-top:4px}
+  .next-wrap{margin-top:16px;text-align:center}
+
+  .result{text-align:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px 20px}
+  .result .score{font-size:2.6rem;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .result p{color:var(--sub);margin:8px 0 20px;font-size:.85rem}
+  .wrong-list{text-align:left;margin-top:20px}
+  .wrong-list h4{margin-bottom:8px;color:var(--ng);font-size:.85rem}
+  .wrong-list .wi{background:var(--card2);border-radius:8px;padding:9px 12px;margin-bottom:6px;font-size:.8rem}
+  .footer{text-align:center;color:var(--sub);font-size:.65rem;padding:20px 0}
+
+  /* ---- 오늘 학습(SRS) ---- */
+  .srs-dash{display:flex;gap:8px;margin-bottom:16px}
+  .srs-dash .stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
+  .srs-dash .stat b{display:block;font-size:1.5rem;line-height:1.2}
+  .srs-dash .stat span{font-size:.66rem;color:var(--sub)}
+  .srs-dash .stat.new b{color:var(--accent)}
+  .srs-dash .stat.due b{color:var(--gold)}
+  .srs-dash .stat.done b{color:var(--ok)}
+  .srs-desc{color:var(--sub);font-size:.82rem;margin-bottom:14px;line-height:1.6;text-align:left}
+  .srs-optrow{margin-bottom:16px}
+  .srs-grade{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:18px}
+  .srs-grade .btn{background:var(--card2);border:1px solid var(--line);color:var(--text);
+    display:flex;flex-direction:column;gap:2px;align-items:center}
+  .srs-grade .btn small{font-size:.6rem;color:var(--sub);font-weight:400}
+  .srs-grade .again{border-color:#5a2d33}
+  .srs-grade .hard{border-color:#5a4a2d}
+  .srs-grade .good{border-color:#2d5a45}
+  .srs-grade .again:hover{background:rgba(255,93,108,.15)}
+  .srs-grade .hard:hover{background:rgba(255,198,75,.15)}
+  .srs-grade .good:hover{background:rgba(51,214,159,.15)}
+  .srs-sync{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .tbtn2{font-size:.72rem;cursor:pointer;background:var(--card2);border:1px solid var(--line);
+    color:var(--text);padding:8px 14px;border-radius:999px}
+  .tbtn2:hover{border-color:var(--accent)}
+  .srs-syncnote{font-size:.66rem;color:var(--sub);margin-top:8px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>일본어 한자 퀴즈</h1>
+    <p>JLPT 문법·어휘 문제 지문 (68·69·73~76쪽) · 46단어</p>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="srs">🔁 오늘 학습</div>
+    <div class="tab" data-tab="study">📖 학습 카드</div>
+    <div class="tab" data-tab="quiz">✏️ 퀴즈</div>
+  </div>
+
+  <!-- 오늘 학습 (간격 반복 + 능동 인출) -->
+  <div class="panel active" id="srs">
+    <div class="srs-dash" id="srsDash"></div>
+    <div id="srsStart" class="quiz-setup">
+      <h3>오늘의 간격 반복 학습</h3>
+      <p class="srs-desc">한자를 보고 <b>뜻·읽기를 먼저 떠올린 뒤</b> 정답을 확인하고 스스로 채점해요. 채점에 따라 다음 복습 날짜가 자동으로 잡힙니다(1·3·7·14·30일). 잊기 직전에 다시 만나게 하는 방식이에요.</p>
+      <div class="srs-optrow">
+        <label class="qopt" style="justify-content:center"><input type="checkbox" id="srsWrite" checked> 떠올리며 손으로 써 보기 칸 표시</label>
+      </div>
+      <button class="btn" id="srsStartBtn">학습 시작</button>
+      <button class="btn ghost" id="srsResetBtn">진도 초기화</button>
+      <div class="srs-sync">
+        <button class="tbtn2" id="srsExport">⬆ 진도 내보내기</button>
+        <button class="tbtn2" id="srsImportBtn">⬇ 진도 불러오기</button>
+        <input type="file" id="srsFile" accept="application/json,.json" style="display:none">
+      </div>
+      <div class="srs-syncnote">PC·태블릿 진도 맞추기 → 한 기기에서 <b>내보내기</b>로 파일을 OneDrive에 저장하고, 다른 기기에서 <b>불러오기</b>로 그 파일을 고르면 더 최근 기록이 자동 병합돼요.</div>
+    </div>
+
+    <div id="srsPlay" style="display:none">
+      <div class="qhead"><span id="srsCount"></span><span id="srsRemain"></span></div>
+      <div class="bar"><div id="srsBar" style="width:0%"></div></div>
+      <div class="qcard">
+        <div class="qlabel">뜻과 읽기를 떠올려 보세요</div>
+        <div class="qmain" id="srsWord"></div>
+        <div id="srsWriteWrap" class="practice" style="display:none;text-align:left">
+          <div class="practice-head"><span class="ptitle">✍️ 떠올리며 쓰기 (안내선 없음)</span>
+            <button class="clearbtn" id="srsClear">지우기</button></div>
+          <div class="practice-rows" id="srsRows"></div>
+        </div>
+        <div class="next-wrap" id="srsRevealWrap"><button class="btn" id="srsRevealBtn">정답 보기 →</button></div>
+        <div class="explain" id="srsReveal"></div>
+        <div class="srs-grade" id="srsGrade" style="display:none">
+          <button class="btn grade again" data-g="again">몰랐어<small>+1일</small></button>
+          <button class="btn grade hard" data-g="hard">애매<small>곧 다시</small></button>
+          <button class="btn grade good" data-g="good">알았어<small>간격 ↑</small></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="srsDone" style="display:none"></div>
+  </div>
+
+  <!-- 학습 카드 -->
+  <div class="panel" id="study">
+    <input class="searchbar" id="search" placeholder="🔍 단어·뜻·한자로 검색 (예: 상담, 場, もん)">
+    <div class="flash-head">
+      <span id="flashCount"></span>
+      <label class="hide-toggle"><input type="checkbox" id="hideToggle"> 뜻·읽기 가리고 보기</label>
+    </div>
+    <div id="cardlist"></div>
+    <div class="nav">
+      <button class="btn ghost navbtn" id="prevBtn">← 이전</button>
+      <button class="btn navbtn" id="nextCardBtn">다음 →</button>
+    </div>
+    <p class="nav-hint">← → 방향키로도 넘길 수 있어요 · 가리기 모드에선 카드를 누르면 공개돼요</p>
+  </div>
+
+  <!-- 퀴즈 -->
+  <div class="panel" id="quiz">
+    <div id="quiz-setup" class="quiz-setup">
+      <h3>퀴즈 유형을 고르세요</h3>
+      <div class="qtypes">
+        <label class="qopt"><input type="checkbox" value="meaning" checked> 단어 → 뜻 맞히기</label>
+        <label class="qopt"><input type="checkbox" value="reading" checked> 단어 → 읽기(히라가나) 맞히기</label>
+        <label class="qopt"><input type="checkbox" value="char" checked> 한자 한 글자 → 훈음 맞히기</label>
+      </div>
+      <button class="btn" id="startBtn">퀴즈 시작 (20문제)</button>
+    </div>
+
+    <div id="quiz-play" style="display:none">
+      <div class="qhead"><span id="qcount"></span><span id="qscore"></span></div>
+      <div class="bar"><div id="qbar" style="width:0%"></div></div>
+      <div class="qcard">
+        <div class="qlabel" id="qlabel"></div>
+        <div class="qmain" id="qmain"></div>
+        <div class="qsub" id="qsub"></div>
+        <div class="choices" id="choices"></div>
+        <div class="explain" id="explain"></div>
+        <div class="next-wrap" id="nextWrap" style="display:none">
+          <button class="btn" id="nextBtn">다음 →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="quiz-result" style="display:none"></div>
+  </div>
+
+  <div class="footer">스스로 만든 학습 도구 · 브라우저에서 열면 바로 작동해요</div>
+</div>
+
+<script>
+/* ===== 데이터: [한자, 훈음, 구성, 💡연상, 🔎복잡글자풀이(선택)] ===== */
+const WORDS = [
+ {w:"早速",y:"さっそく",m:"즉시·재빨리",c:[
+   ["早","이를 조","日(해)+十(장대)","해(日)가 십자 장대(十) 끝에 막 걸린 이른 아침 → '이르다·일찍'."],
+   ["速","빠를 속","辶(갈 착)+束(묶을 속)","짐을 단단히 묶고(束) 길을 나서니(辶) 지체 없이 '빠름'.",
+     ["束(묶을 속): 나무(木)를 끈으로 둘러 묶은 모양","⚠️ 早速(さっそく)는 특수 촉음 — そく가 아니라 そっ으로 붙어 발음, 통암기"]]]},
+ {w:"商品",y:"しょうひん",m:"상품",c:[
+   ["商","장사 상","좌판+口(입)","좌판 위에 물건을 벌여 놓고 입(口)으로 값을 흥정하는 '장사'."],
+   ["品","물건 품","口(입)+口+口","입(口) 세 개가 층층이 쌓인 모양 → 여러 '물건·품목·품질'."]]},
+ {w:"定年",y:"ていねん",m:"정년",c:[
+   ["定","정할 정","宀(집 면)+正(바를 정)","지붕(宀) 아래 바르게(正) 자리를 딱 잡아 '정함·확정'.",
+     ["宀(집 면): 지붕 덮은 집(갓머리)"]],
+   ["年","해 년","禾(벼)+사람","벼(禾)를 짊어진 사람 → 곡식이 한 번 여무는 주기 = 한 '해'."]]},
+ {w:"田舎",y:"いなか",m:"시골",c:[
+   ["田","밭 전","네모 밭이랑","네모로 구획된 밭이랑 모양 → '밭'."],
+   ["舎","집 사","지붕+기둥","지붕과 기둥·주춧돌을 갖춘 '집·건물'.",
+     ["⚠️ 田舎(いなか)는 숙자훈(훈독) — 글자 음(でん·しゃ)과 무관, 통째로 'いなか=시골'로 암기"]]]},
+ {w:"高校",y:"こうこう",m:"고교",c:[
+   ["高","높을 고","높은 누각 모양","층층이 올린 높은 망루·누각의 옆모습 → '높다'."],
+   ["校","학교 교","木(나무)+交(사귈 교)","나무(木) 울타리 안에서 서로 사귀며(交) 배우는 '학교'.",
+     ["交(사귈 교): 사람이 두 다리를 X로 교차한 모양 → 사귀다·엇갈리다"]]]},
+ {w:"時代",y:"じだい",m:"시대",c:[
+   ["時","때 시","日(해)+寺(관청 사)","해(日)가 관청(寺)의 정해진 순서대로 흐르는 '때·시간'.",
+     ["寺(절/관청 사): 土(흙)+寸(손) → 본래 손발로 일하는 '관청', 뒤에 '절'"]],
+   ["代","대신할 대","亻(사람)+弋(주살 익)","사람(亻)이 말뚝(弋)처럼 자리를 이어받음 → '대신하다·세대'.",
+     ["弋(주살 익): 줄 매단 화살·말뚝 모양"]]]},
+ {w:"同級生",y:"どうきゅうせい",m:"동급생",c:[
+   ["同","한가지 동","冂(테두리)+一+口","한 지붕(冂) 아래 여럿의 입(口)이 하나(一)로 같은 소리 → '똑같다·함께'."],
+   ["級","등급 급","糸(실)+及(미칠 급)","실(糸)의 굵기가 미치는(及) 정도로 매긴 '등급'.",
+     ["及(미칠 급): 앞사람을 손으로 잡는 모양 → 뒤따라 미치다"]],
+   ["生","날 생","땅에서 돋는 싹","땅(土) 위로 싹(丿)이 돋는 모양 → '나다·살다·학생'."]]},
+ {w:"彼氏",y:"かれし",m:"남자친구",c:[
+   ["彼","저 피","彳(걸음)+皮(가죽 피)","길(彳) 저쪽에 가죽옷(皮) 걸친 저 사람 → '저·그(사람)'.",
+     ["皮(가죽 피): 손으로 짐승 가죽을 벗기는 모양"]],
+   ["氏","성씨 씨","뿌리 뻗은 모양","땅으로 뿌리 뻗은 모양 → 핏줄·'성씨·~씨'.",
+     ["⚠️ 彼氏(かれし)=남자친구는 관용 통암기 (彼=그 + 氏=씨)"]]]},
+ {w:"近所",y:"きんじょ",m:"근처·이웃",c:[
+   ["近","가까울 근","辶(갈 착)+斤(도끼 근)","도끼(斤) 들고 잠깐 걸어(辶) 다녀올 만큼 '가까운' 거리.",
+     ["斤(도끼 근): 도끼 모양"]],
+   ["所","바 소","戸(지게문)+斤(도끼)","문(戸) 옆에 도끼(斤)를 두는, 정해진 그 '자리·곳'.",
+     ["戸(지게 호): 외짝으로 된 문"]]]},
+ {w:"指導",y:"しどう",m:"지도",c:[
+   ["指","손가락 지","扌(손)+旨(뜻 지)","손(扌)으로 뜻하는(旨) 방향을 가리키는 '손가락'.",
+     ["旨(뜻 지): 숟가락(匕)으로 맛봄 → 맛·뜻"]],
+   ["導","인도할 도","道(길 도)+寸(손)","길(道)을 손(寸)으로 잡아 이끎 → '인도·지도'.",
+     ["道(길 도): 辶(가다)+首(머리) → 머리 두고 걸어가는 길"]]]},
+ {w:"講師",y:"こうし",m:"강사",c:[
+   ["講","욀 강","言(말씀)+冓(짤 구)","말(言)을 얼기설기 엮어(冓) 풀어냄 → '강의·강론'.",
+     ["冓(짤 구): 나무를 교차해 짜 올린 모양"]],
+   ["師","스승 사","무리를 거느린 우두머리","많은 사람(무리)을 거느리고 이끄는 우두머리 → 무리를 가르치는 '스승'."]]},
+ {w:"日頃",y:"ひごろ",m:"평소·평상시",c:[
+   ["日","날 일","해 모양","둥근 해에 점 하나 → '해·날'."],
+   ["頃","무렵 경","匕(기울)+頁(머리 혈)","머리(頁)를 갸웃 기울인(匕) 잠깐 → '무렵·즈음'.",
+     ["頁(머리 혈): 사람 머리를 강조한 모양","⚠️ 日頃(ひごろ)=평소는 훈독 관용, 통암기"]]]},
+ {w:"災害",y:"さいがい",m:"재해",c:[
+   ["災","재앙 재","巛(내 천)+火(불)","홍수(巛)와 불(火), 물불이 겹친 '재앙'.",
+     ["巛(내 천): 흐르는 물줄기 모양 → 川"]],
+   ["害","해할 해","宀(집)+口(입)","집(宀) 안에서 입(口)으로 해코지·트집 → '해치다·해로움'."]]},
+ {w:"対策",y:"たいさく",m:"대책",c:[
+   ["対","대할 대","마주 선 손(寸)","손(寸)으로 마주함 → '마주하다·상대·대응'."],
+   ["策","꾀 책","竹(대)+朿(가시 자)","대나무(竹) 죽간에 적은 계략·채찍 → '꾀·대책'.",
+     ["朿(가시 자): 가시 돋친 나무 모양"]]]},
+ {w:"大切",y:"たいせつ",m:"소중함·중요함",c:[
+   ["大","큰 대","팔다리 벌린 사람","두 팔 두 다리를 쫙 벌린 사람 → '크다'."],
+   ["切","끊을 절","七(일곱)+刀(칼)","칼(刀)로 싹둑 '끊다·자르다'.",
+     ["⚠️ 大切(たいせつ)=소중함/중요함은 일본식 의미 — '크게 자를 만큼 귀하다'로 통암기"]]]},
+ {w:"意味",y:"いみ",m:"의미",c:[
+   ["意","뜻 의","音(소리)+心(마음)","마음(心)속에서 울려 나오는 소리(音) = 그 사람의 '뜻·의도'."],
+   ["味","맛 미","口(입)+未(아닐 미)","입(口)에 넣었지만 아직(未) 콕 집어 말 못 할 미묘한 '맛'.",
+     ["未(아닐 미): 나무 위 아직 덜 자란 가지 → '아직 ~아니다'"]]]},
+ {w:"社長",y:"しゃちょう",m:"사장",c:[
+   ["社","모일 사","示(보일 시)+土(흙)","흙(土) 위 제단(示) 앞에 사람이 모임 → 공동체·회사.",
+     ["示(보일 시): 제단 모양 → 신·제사에 관한 부수"]],
+   ["長","길 장","지팡이 짚은 노인","긴 머리 노인이 지팡이를 짚은 모양 → '길다·어른·우두머리'."]]},
+ {w:"大声",y:"おおごえ",m:"큰 소리",c:[
+   ["大","큰 대","팔다리 벌린 사람","두 팔 벌린 사람 → '크다'."],
+   ["声","소리 성","악기(磬) 소리","돌 편경(磬)을 울릴 때 나는 '소리'.",
+     ["⚠️ 大声(おおごえ)는 훈독 — おお(크다)+こえ(소리, →ごえ)로 통암기"]]]},
+ {w:"夏休み",y:"なつやすみ",m:"여름방학",c:[
+   ["夏","여름 하","천천히 걷는 사람","더위에 느릿느릿 걷는 사람 모양 → '여름'."],
+   ["休","쉴 휴","亻(사람)+木(나무)","사람(亻)이 나무(木) 그늘에 기대어 '쉼'.",
+     ["⚠️ 夏休み(なつやすみ)는 훈독 — なつ(여름)+やすみ(쉼)로 통암기"]]]},
+ {w:"虫歯",y:"むしば",m:"충치",c:[
+   ["虫","벌레 충","벌레·뱀 모양","꿈틀대는 벌레(뱀)의 모양 → '벌레'."],
+   ["歯","이 치","止(소리)+이빨 모양","입 안 윗니아랫니를 그리고 위에 止(소리)를 얹은 '이(치아)'.",
+     ["⚠️ 虫歯(むしば)는 훈독 — むし(벌레)+は(이, →ば), '이를 파먹는 벌레'로 통암기"]]]},
+ {w:"部屋",y:"へや",m:"방",c:[
+   ["部","떼 부","咅+阝(邑,고을)","마을(邑)을 나눈 한 '구역·부서·부분'.",
+     ["阝(우부방): 邑(고을 읍)이 오른쪽에 올 때 모양"]],
+   ["屋","집 옥","尸(지붕)+至(이를 지)","사람이 이르러(至) 머무는 지붕(尸) 아래 '집·방'.",
+     ["⚠️ 部屋(へや)는 특수 숙자훈 — 글자 음(ぶ·おく)과 전혀 무관, 통째로 'へや=방' 암기"]]]},
+ {w:"出来る",y:"できる",m:"할 수 있다·완성되다",c:[
+   ["出","날 출","문지방 나서는 발","발이 문지방을 넘어 밖으로 나가는 모양 → '나가다·나오다'."],
+   ["来","올 래","보리 이삭 모양","익은 보리(麥) 이삭 모양을 빌려 '오다'로 씀.",
+     ["⚠️ 出来る(できる)는 훈독 관용 — '나와서(出) 온다(来)=이루어진다·가능하다'로 통암기"]]]},
+ {w:"空港",y:"くうこう",m:"공항",c:[
+   ["空","빌 공","穴(구멍)+工(장인 공)","굴(穴)을 파내니(工) 텅 '빈' 공간, 또 텅 빈 '하늘'.",
+     ["穴(구멍 혈): 굴·구멍을 뜻하는 부수"]],
+   ["港","항구 항","氵(물)+巷(거리 항)","물(氵)가에 배가 드나드는 거리(巷) → '항구'.",
+     ["巷(거리 항): 마을(共) 안 골목길"]]]},
+ {w:"喧嘩",y:"けんか",m:"싸움·말다툼",c:[
+   ["喧","시끄러울 훤","口(입)+宣(베풀 선)","입(口)으로 크게 떠벌림(宣) → '시끄럽다'.",
+     ["宣(베풀 선): 지붕(宀) 아래 두루 펼쳐 알림"]],
+   ["嘩","떠들썩할 화","口(입)+華(빛날 화)","입(口)들이 화려하게(華) 떠들썩 → 왁자지껄.",
+     ["⚠️ 喧嘩(けんか)=싸움은 통암기 (둘 다 '시끄럽다')"]]]},
+ {w:"先生",y:"せんせい",m:"선생님",c:[
+   ["先","먼저 선","止(발)+儿(사람)","사람(儿) 몸보다 발(止)이 한 걸음 앞선 모양 → '먼저'.",
+     ["儿(어진사람 인): 사람의 두 다리","止(발 지): 발자국 모양"]],
+   ["生","날 생","땅에서 돋는 싹","땅 위로 싹이 돋음 → '나다·살다'. 先生=먼저 태어난 사람."]]},
+ {w:"料理",y:"りょうり",m:"요리",c:[
+   ["料","헤아릴 료","米(쌀)+斗(말 두)","쌀(米)을 됫박(斗)으로 되어 헤아림 → '재료·헤아리다'.",
+     ["斗(말 두): 곡식 되는 국자 모양 됫박"]],
+   ["理","다스릴 리","王(玉,옥)+里(마을 리)","옥(玉)의 결을 마을길(里)처럼 따라 다듬음 → 이치를 '다스리다'. 料理=재료를 이치대로 다룸.",
+     ["王 = 玉(구슬 옥): 여기선 임금이 아니라 옥(보석)","里(마을 리): 田(밭)+土(흙)"]]]},
+ {w:"病状",y:"びょうじょう",m:"병세",c:[
+   ["病","병 병","疒(병질 엄)+丙(남녘 병)","병상(疒)에 불(丙)처럼 열이 오른 '병'.",
+     ["疒(병질 엄): 사람이 병상에 기대 누운 모양","丙(남녘 병): 불·밝음을 뜻하는 소리"]],
+   ["状","형상 상","爿(나뭇조각)+犬(개)","널조각(爿) 위에 개(犬)를 그린 '모습·형상'.",
+     ["爿(나뭇조각 장): 통나무를 세로로 쪼갠 침상 조각"]]]},
+ {w:"元気",y:"げんき",m:"기운·건강",c:[
+   ["元","으뜸 원","사람 머리 꼭대기","사람 몸(儿) 맨 위 머리를 강조 → '으뜸·근원'."],
+   ["気","기운 기","피어오르는 김","밥 지을 때 수증기가 모락모락 피어오르는 '기운'."]]},
+ {w:"約束",y:"やくそく",m:"약속",c:[
+   ["約","맺을 약","糸(실)+勺(구기 작)","실(糸)로 국자(勺)만큼 콕 묶음 → '묶다·약속'.",
+     ["勺(구기 작): 국자로 조금 떠내는 모양"]],
+   ["束","묶을 속","나무를 두른 끈","나무(木)를 끈으로 둘러 묶은 모양 → '묶다·다발'."]]},
+ {w:"時間",y:"じかん",m:"시간",c:[
+   ["時","때 시","日(해)+寺(관청 사)","해(日)가 정해진 순서(寺)대로 흐르는 '때'.",
+     ["寺(절/관청 사): 본래 관청 → 손발로 일하는 곳"]],
+   ["間","사이 간","門(문)+日(해)","닫힌 문(門) 틈으로 햇빛(日)이 새어드는 그 '틈·사이'."]]},
+ {w:"小説家",y:"しょうせつか",m:"소설가",c:[
+   ["小","작을 소","작게 나뉜 점","점 세 개가 작게 나뉜 모양 → '작다'."],
+   ["説","말씀 설","言(말씀)+兌(기쁠 태)","말(言)로 풀어 기쁘게(兌) 납득시킴 → '설명·이야기'.",
+     ["兌(기쁠 태): 입 벌려 웃으며 기뻐하는 모양"]],
+   ["家","집 가","宀(집)+豕(돼지 시)","지붕(宀) 아래 돼지(豕)를 기르던 '집'. ~家=그 일에 정통한 사람.",
+     ["豕(돼지 시): 돼지의 옆모습"]]]},
+ {w:"世界中",y:"せかいじゅう",m:"전 세계",c:[
+   ["世","세상 세","十이 셋 이어진 모양","열(十)이 셋 이어진 모양 → 삼십 년 한 '세대·세상'."],
+   ["界","지경 계","田(밭)+介(끼일 개)","밭(田) 사이에 낀(介) 경계선 → '지경·세계'.",
+     ["介(끼일 개): 사람 양옆에 낀 모양 → 끼다·사이"]],
+   ["中","가운데 중","과녁 꿰뚫음","과녁 정 '가운데'를 화살이 꿰뚫은 모양. ~中=온통 그 안."]]},
+ {w:"名作",y:"めいさく",m:"명작",c:[
+   ["名","이름 명","夕(저녁)+口(입)","어두운 저녁(夕)엔 안 보여 입(口)으로 서로 이름을 부름 → '이름'."],
+   ["作","지을 작","亻(사람)+乍(잠깐 사)","사람(亻)이 잠깐 새(乍) 뚝딱 만들어 냄 → '짓다·만들다'.",
+     ["乍(잠깐 사): 칼로 슥 베어 내는 순간 → 잠깐·짓다"]]]},
+ {w:"権利",y:"けんり",m:"권리",c:[
+   ["権","권세 권","木(나무)+雚(황새 관)","저울대(木) 위 추처럼 무게(힘)를 쥠 → '권세·권한'.",
+     ["雚(황새 관): 부리 큰 황새 모양 → 소리 부분"]],
+   ["利","이할 리","禾(벼)+刂(칼)","여문 벼(禾)를 낫(刂)으로 베어 거두는 이득 → '이롭다·이익'.",
+     ["刂(선칼도): 刀(칼)이 글자 옆에 올 때 모양"]]]},
+ {w:"昇進",y:"しょうしん",m:"승진",c:[
+   ["昇","오를 승","日(해)+升(되 승)","해(日)가 됫박(升) 위로 솟아오름 → '오르다'.",
+     ["升(되 승): 곡식 되는 됫박·국자 모양"]],
+   ["進","나아갈 진","辶(갈)+隹(새)","새(隹)가 앞으로만 날아가듯(辶) '나아감'.",
+     ["隹(새 추): 꽁지 짧은 새 모양"]]]},
+ {w:"富士山",y:"ふじさん",m:"후지산",c:[
+   ["富","부자 부","宀(집)+畐(가득할 복)","집(宀)에 재물이 가득(畐) → '부유·부자'.",
+     ["畐(가득할 복): 술독에 가득 찬 모양"]],
+   ["士","선비 사","도끼/선비 모양","하나(一)를 들으면 열(十)을 아는 사람 → '선비'."],
+   ["山","뫼 산","봉우리 셋","봉우리 세 개가 솟은 '산' 모양.",
+     ["⚠️ 富士山(ふじさん)은 고유명사 — ふじ는 특수 훈, 통암기"]]]},
+ {w:"写真",y:"しゃしん",m:"사진",c:[
+   ["写","베낄 사","冖(덮개)+与(줄 여)","덮개(冖) 아래에 대고 그대로 옮겨 '베낌·찍음'."],
+   ["真","참 진","곧게 그대로의 모습","꾸밈없이 곧고 그대로인 '참·진짜'. 写真=참모습을 그대로 베낌."]]},
+ {w:"障害",y:"しょうがい",m:"장애",c:[
+   ["障","막을 장","阝(언덕 부)+章(막이 장)","언덕(阝)이 앞을 가로막음 → '막다·장애'.",
+     ["阝(좌부방): 阜(언덕 부)가 왼쪽에 올 때 모양","章(글/막이 장): 音+十, 여기선 소리 부분"]],
+   ["害","해할 해","宀(집)+口(입)","집(宀) 안에서 입(口)으로 해코지 → '해치다·해로움'."]]},
+ {w:"発生",y:"はっせい",m:"발생",c:[
+   ["発","필 발","癶(등질 발)+弓(활)","활(弓)을 당겨 화살이 튀어 나감 → '쏘다·피다·일어남'.",
+     ["癶(걸을 발): 두 발이 좌우로 벌어진 모양"]],
+   ["生","날 생","땅에서 돋는 싹","땅 위로 싹이 돋음 → '나다·생기다'. 発生=튀어나와 생김."]]},
+ {w:"過去",y:"かこ",m:"과거",c:[
+   ["過","지날 과","辶(갈)+咼(입 비뚤 와)","길을 스쳐 지나쳐(辶) 감 → '지나다·지나침'.",
+     ["咼(입 비뚤 와): 뼈·구멍이 비뚤어진 모양 → 소리 부분"]],
+   ["去","갈 거","구덩이를 벗어남","사람이 살던 구덩이(움집)를 떠나는 모양 → '가다·떠나다'."]]},
+ {w:"分析",y:"ぶんせき",m:"분석",c:[
+   ["分","나눌 분","八(나눔)+刀(칼)","칼(刀)로 좌우 둘로(八) 갈라 '나눔'."],
+   ["析","쪼갤 석","木(나무)+斤(도끼)","나무(木)를 도끼(斤)로 쪼갬 → '쪼개다·분석'.",
+     ["斤(도끼 근): 도끼 모양"]]]},
+ {w:"結果",y:"けっか",m:"결과",c:[
+   ["結","맺을 결","糸(실)+吉(길할 길)","실(糸)을 좋게(吉) 매듭지음 → '맺다·매듭'.",
+     ["吉(길할 길): 士(선비)+口(입) → 좋은 말 → 길하다"]],
+   ["果","열매 과","나무 위 열매","나무(木) 위에 둥근 열매가 열린 모양 → '열매·결과'."]]},
+ {w:"開発",y:"かいはつ",m:"개발",c:[
+   ["開","열 개","門(문)+빗장 여는 손","두 손으로 문(門)의 빗장을 벗겨 '엶'."],
+   ["発","필 발","癶(등질 발)+弓(활)","활(弓)을 쏘아 튀어 나감 → '피다·일으킴'. 開発=열어서 새로 일으킴.",
+     ["癶(걸을 발): 두 발이 벌어진 모양"]]]},
+ {w:"反面",y:"はんめん",m:"반면",c:[
+   ["反","돌이킬 반","厂(언덕)+又(손)","손(又)으로 벼랑(厂)을 거슬러 뒤집음 → '반대·되돌림'.",
+     ["又(또 우): 오른손 모양","厂(기슭 엄): 벼랑·언덕"]],
+   ["面","낯 면","얼굴 윤곽+눈","얼굴 윤곽 안에 눈(目)을 그린 '낯·면'. 反面=뒤집은 다른 면."]]},
+ {w:"家族",y:"かぞく",m:"가족",c:[
+   ["家","집 가","宀(집)+豕(돼지 시)","지붕(宀) 아래 돼지(豕)를 기르던 '집'.",
+     ["豕(돼지 시): 돼지의 옆모습"]],
+   ["族","겨레 족","㫃(깃발 언)+矢(화살 시)","한 깃발(㫃) 아래 화살(矢) 든 무리 → '겨레·가족'.",
+     ["㫃(깃발 언): 펄럭이는 깃발","矢(화살 시): 화살 모양"]]]},
+ {w:"満足",y:"まんぞく",m:"만족",c:[
+   ["満","찰 만","氵(물)+㒼(평평할 만)","물(氵)이 그릇에 평평하게(㒼) 가득 '참'.",
+     ["㒼(평평할 만): 넘치도록 고르게 찬 모양"]],
+   ["足","발 족","무릎 아래 발","무릎(口)에서 발끝까지 그린 '발'; 여기선 '채우다·족하다'. 満足=가득 채워 흡족."]]}
+];
+
+/* ===== 헷갈리는 글자·단어 (정답 볼 때 함께 표시) =====
+   c: 헷갈리는 '글자' 구분 팁 / w: 헷갈리는 '단어' [한자, 히라가나, 뜻] */
+const CONFUSE={
+ "早速":{c:"速(빠를 속) ↔ 束(묶을 속): 速엔 辶(받침)이 있어 '빠르다', 束은 받침 없이 '묶다'(束이 速의 소리 부분).",
+   w:[["早々","そうそう","일찌감치·서둘러"],["速度","そくど","속도"]]},
+ "商品":{w:[["賞品","しょうひん","상품(상으로 받는 물건)"],["製品","せいひん","제품"]]},
+ "定年":{w:[["停年","ていねん","정년(=定年, 다른 표기)"],["定員","ていいん","정원(인원 수)"]]},
+ "高校":{w:[["孝行","こうこう","효행"],["航行","こうこう","항행(배·비행기 운항)"]]},
+ "時代":{w:[["事態","じたい","사태"],["次第","しだい","순서·~에 따라"]]},
+ "料理":{c:"料(헤아릴 료) ↔ 科(과목 과): 왼쪽이 米(쌀)면 料, 禾(벼)면 科.",
+   w:[["料金","りょうきん","요금"],["修理","しゅうり","수리"]]},
+ "時間":{c:"間·問·聞: 門 안이 日이면 間(사이), 口면 問(묻다), 耳면 聞(듣다).",
+   w:[["期間","きかん","기간"],["時刻","じこく","시각"]]},
+ "名作":{c:"作(지을 작) ↔ 昨(어제 작): 왼쪽이 亻(사람)이면 作(만들다), 日(해)면 昨(어제).",
+   w:[["名刺","めいし","명함"],["傑作","けっさく","걸작"]]},
+ "権利":{c:"利(이할 리) ↔ 私(사사 사): 禾 오른쪽이 刂(칼)이면 利(이익), 厶면 私(사적).",
+   w:[["権力","けんりょく","권력"],["義務","ぎむ","의무(권리↔의무)"]]},
+ "講師":{c:"講·構·購: 오른쪽 冓(짤 구) 공통 — 言=講(강의), 木=構(구성), 貝=購(구매).",
+   w:[["公私","こうし","공사(공적·사적)"],["講義","こうぎ","강의"]]},
+ "指導":{c:"導(인도할 도) ↔ 道(길 도): 道 아래에 寸(손)이 붙으면 導(이끌다).",
+   w:[["児童","じどう","아동"],["始動","しどう","시동"]]},
+ "意味":{c:"味의 오른쪽은 未(아닐 미) — 末(끝 말) 아님(未는 윗가로획이 더 짧다).",
+   w:[["意義","いぎ","의의"],["意志","いし","의지"]]},
+ "過去":{c:"過·週·遇: 辶(받침) 공통 — 咼=過(지나침), 周=週(주간), 禺=遇(우연히 만남).",
+   w:[["過程","かてい","과정"],["過剰","かじょう","과잉"]]},
+ "分析":{c:"析(쪼갤 석) ↔ 折(꺾을 절): 木+斤=析(쪼갬), 扌+斤=折(꺾음).",
+   w:[["分野","ぶんや","분야"],["分類","ぶんるい","분류"]]},
+ "開発":{c:"発(필 발) ↔ 廃(폐할 폐): 위 癶 공통, 아래가 弓+殳면 発, 广+发면 廃.",
+   w:[["開始","かいし","개시"],["出発","しゅっぱつ","출발"]]},
+ "家族":{c:"族(겨레 족) ↔ 旅(나그네 려): 왼쪽 方 공통 — 오른쪽이 矢(화살)면 族.",
+   w:[["家庭","かてい","가정"],["親族","しんぞく","친족"]]},
+ "富士山":{c:"富·副·福: 오른쪽 畐 공통 — 宀=富(부유), 刂=副(부-), 礻=福(복).",
+   w:[["富士","ふじ","후지(지명)"],["無事","ぶじ","무사(탈 없음)"]]},
+ "写真":{c:"写(베낄 사) ↔ 与(줄 여): 写는 冖(덮개)+与.",
+   w:[["写生","しゃせい","사생(스케치)"],["複写","ふくしゃ","복사"]]},
+ "障害":{c:"障(막을 장) ↔ 章(글 장): 阝(언덕)이 붙으면 障(가로막다).",
+   w:[["生涯","しょうがい","생애"],["傷害","しょうがい","상해(상처 입힘)"]]}
+};
+function confuseHtml(w,blur){
+  const e=CONFUSE[w.w]; if(!e)return '';
+  let h='';
+  if(e.c) h+=`<div class="cf-line">🔀 <b>헷갈리는 글자</b> · ${e.c}</div>`;
+  if(e.w&&e.w.length){
+    h+=`<div class="cf-line">🔁 <b>헷갈리는 단어</b><div class="cf-words">`+
+      e.w.map(x=>`<div class="cf-w"><span class="cf-k">${x[0]}</span><span class="cf-y">${x[1]}</span><span class="cf-m">${x[2]}</span></div>`).join('')+
+      `</div></div>`;
+  }
+  return h?`<div class="confuse${blur||''}">${h}</div>`:'';
+}
+
+/* ===== 탭 전환 ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+  };
+});
+
+/* ===== 학습 카드 (한 장씩 넘기기) ===== */
+let flashList=WORDS.slice();
+let flashIdx=0;
+let flashRevealed=false;
+
+function notesHtml(arr){
+  if(!arr||!arr.length)return '';
+  return `<div class="notes">${arr.map(n=>`<div class="note">🔎 ${n}</div>`).join('')}</div>`;
+}
+function charRow(c){
+  return `<div class="chrow"><span class="c">${c[0]}</span>
+    <div class="cinfo">
+      <div class="cline"><span class="hun">${c[1]}</span><span class="parts">${c[2]}</span></div>
+      <div class="story">💡 ${c[3]}</div>${notesHtml(c[4])}
+    </div></div>`;
+}
+
+/* ---- 쓰기 연습 칸(캔버스) ---- */
+function makeCell(char,showGuide){
+  const c=document.createElement('canvas');
+  c.className='pcell';
+  const S=256; c.width=S; c.height=S;
+  const ctx=c.getContext('2d');
+  function bg(){
+    ctx.clearRect(0,0,S,S);
+    ctx.strokeStyle='#d9c9a0'; ctx.lineWidth=2;
+    ctx.strokeRect(5,5,S-10,S-10);
+    ctx.save();
+    ctx.setLineDash([6,9]); ctx.strokeStyle='#e4d6b2'; ctx.lineWidth=1.5;
+    ctx.beginPath();
+    ctx.moveTo(S/2,5); ctx.lineTo(S/2,S-5);
+    ctx.moveTo(5,S/2); ctx.lineTo(S-5,S/2);
+    ctx.moveTo(5,5);   ctx.lineTo(S-5,S-5);
+    ctx.moveTo(S-5,5); ctx.lineTo(5,S-5);
+    ctx.stroke(); ctx.restore();
+    if(showGuide && char){
+      ctx.fillStyle='rgba(110,110,110,.22)';
+      ctx.font='198px "Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(char,S/2,S/2+6);
+    }
+  }
+  bg(); c._bg=bg;
+  let drawing=false;
+  const pos=e=>{const r=c.getBoundingClientRect();
+    return [(e.clientX-r.left)/r.width*S,(e.clientY-r.top)/r.height*S];};
+  c.addEventListener('pointerdown',e=>{drawing=true;c.setPointerCapture(e.pointerId);
+    const [x,y]=pos(e);ctx.beginPath();ctx.moveTo(x,y);e.preventDefault();});
+  c.addEventListener('pointermove',e=>{if(!drawing)return;const [x,y]=pos(e);
+    ctx.strokeStyle='#1c2b4a';ctx.lineWidth=7;ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.lineTo(x,y);ctx.stroke();e.preventDefault();});
+  const end=()=>{drawing=false;};
+  c.addEventListener('pointerup',end);
+  c.addEventListener('pointercancel',end);
+  return c;
+}
+/* 여러 칸을 하나로 합친 연습장 (cols×rows 田자 격자, 한 판) */
+function makeSheet(cols,rows){
+  const c=document.createElement('canvas');
+  c.className='psheet';
+  const CELL=220; c.width=CELL*cols; c.height=CELL*rows;
+  const ctx=c.getContext('2d');
+  function bg(){
+    ctx.clearRect(0,0,c.width,c.height);
+    for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){
+      const x=i*CELL,y=j*CELL;
+      ctx.strokeStyle='#d9c9a0'; ctx.lineWidth=2;
+      ctx.strokeRect(x+4,y+4,CELL-8,CELL-8);
+      ctx.save(); ctx.setLineDash([6,9]); ctx.strokeStyle='#e4d6b2'; ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.moveTo(x+CELL/2,y+4); ctx.lineTo(x+CELL/2,y+CELL-4);
+      ctx.moveTo(x+4,y+CELL/2); ctx.lineTo(x+CELL-4,y+CELL/2);
+      ctx.moveTo(x+4,y+4);      ctx.lineTo(x+CELL-4,y+CELL-4);
+      ctx.moveTo(x+CELL-4,y+4);  ctx.lineTo(x+4,y+CELL-4);
+      ctx.stroke(); ctx.restore();
+    }
+  }
+  bg(); c._bg=bg;
+  let drawing=false;
+  const pos=e=>{const r=c.getBoundingClientRect();
+    return [(e.clientX-r.left)/r.width*c.width,(e.clientY-r.top)/r.height*c.height];};
+  c.addEventListener('pointerdown',e=>{drawing=true;c.setPointerCapture(e.pointerId);
+    const [x,y]=pos(e);ctx.beginPath();ctx.moveTo(x,y);e.preventDefault();});
+  c.addEventListener('pointermove',e=>{if(!drawing)return;const [x,y]=pos(e);
+    ctx.strokeStyle='#1c2b4a';ctx.lineWidth=7;ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.lineTo(x,y);ctx.stroke();e.preventDefault();});
+  const end=()=>{drawing=false;};
+  c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end);
+  return c;
+}
+function setupPractice(){
+  const rows=document.getElementById('practiceRows');
+  if(!rows)return;
+  rows.innerHTML='';
+  rows.appendChild(makeSheet(4,2)); // 8칸 합친 연습장
+}
+
+function renderCard(){
+  const box=document.getElementById('cardlist');
+  const hide=document.getElementById('hideToggle').checked;
+  if(!flashList.length){
+    box.innerHTML='<p style="color:var(--sub);text-align:center;padding:40px">검색 결과가 없어요</p>';
+    document.getElementById('flashCount').textContent='';
+    return;
+  }
+  if(flashIdx>=flashList.length)flashIdx=0;
+  const x=flashList[flashIdx];
+  const blur=(hide && !flashRevealed)?' hidden-blur':'';
+  box.innerHTML=`
+    <div class="wordcard flash" id="theCard">
+      <div class="top">
+        <span class="kanji">${x.w}</span>
+        <span class="yomi${blur}">${x.y}</span>
+        <span class="mean${blur}">${x.m}</span>
+      </div>
+    </div>
+    <div class="practice">
+      <div class="practice-head">
+        <span class="ptitle">✍️ 쓰기 연습</span>
+        <button class="clearbtn" id="clearAll">지우기</button>
+      </div>
+      <div class="practice-rows" id="practiceRows"></div>
+    </div>
+    <div class="wordcard">
+      <div class="chars${blur}">${x.c.map(charRow).join('')}</div>
+      ${confuseHtml(x,blur)}
+    </div>`;
+  document.getElementById('flashCount').textContent=`${flashIdx+1} / ${flashList.length}`;
+  document.getElementById('theCard').onclick=()=>{
+    if(hide && !flashRevealed){flashRevealed=true;renderCard();}
+  };
+  setupPractice();
+  document.getElementById('clearAll').onclick=()=>{
+    document.querySelectorAll('#practiceRows canvas').forEach(c=>c._bg&&c._bg());
+  };
+}
+function goCard(step){
+  if(!flashList.length)return;
+  flashIdx=(flashIdx+step+flashList.length)%flashList.length;
+  flashRevealed=false;
+  renderCard();
+}
+document.getElementById('prevBtn').onclick=()=>goCard(-1);
+document.getElementById('nextCardBtn').onclick=()=>goCard(1);
+document.getElementById('hideToggle').onchange=()=>{flashRevealed=false;renderCard();};
+document.getElementById('search').oninput=e=>{
+  const f=e.target.value.trim().toLowerCase();
+  flashList=WORDS.filter(x=>!f || x.w.includes(f)||x.y.includes(f)||x.m.toLowerCase().includes(f)
+    || x.c.some(c=>c[0].includes(f)||c[1].toLowerCase().includes(f)));
+  flashIdx=0;flashRevealed=false;renderCard();
+};
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('study').classList.contains('active'))return;
+  if(document.activeElement.id==='search')return;
+  if(e.key==='ArrowLeft')goCard(-1);
+  if(e.key==='ArrowRight')goCard(1);
+});
+renderCard();
+
+/* ===== 퀴즈 ===== */
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+const CHARMAP={};
+WORDS.forEach(x=>x.c.forEach(c=>{CHARMAP[c[0]]={hun:c[1],parts:c[2],story:c[3],notes:c[4]}}));
+const CHARS=Object.keys(CHARMAP).map(k=>({ch:k,...CHARMAP[k]}));
+
+let quiz={list:[],i:0,score:0,wrong:[]};
+
+document.getElementById('startBtn').onclick=()=>{
+  const types=[...document.querySelectorAll('.qtypes input:checked')].map(i=>i.value);
+  if(!types.length){alert('퀴즈 유형을 하나 이상 고르세요');return;}
+  const pool=[];
+  types.forEach(t=>{
+    if(t==='char') CHARS.forEach(c=>pool.push({type:'char',data:c}));
+    else WORDS.forEach(w=>pool.push({type:t,data:w}));
+  });
+  quiz={list:shuffle(pool).slice(0,20),i:0,score:0,wrong:[]};
+  document.getElementById('quiz-setup').style.display='none';
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-play').style.display='block';
+  showQ();
+};
+
+function showQ(){
+  const q=quiz.list[quiz.i];
+  document.getElementById('qcount').textContent=`${quiz.i+1} / ${quiz.list.length}`;
+  document.getElementById('qscore').textContent=`⭐ ${quiz.score}점`;
+  document.getElementById('qbar').style.width=(quiz.i/quiz.list.length*100)+'%';
+  document.getElementById('explain').classList.remove('show');
+  document.getElementById('nextWrap').style.display='none';
+
+  let label,main,sub,answer,options;
+  if(q.type==='meaning'){
+    label='이 단어의 뜻은?';main=q.data.w;sub=q.data.y;answer=q.data.m;
+    options=buildOpts(answer,WORDS.map(x=>x.m));
+  }else if(q.type==='reading'){
+    label='이 단어의 읽기는?';main=q.data.w;sub=q.data.m;answer=q.data.y;
+    options=buildOpts(answer,WORDS.map(x=>x.y));
+  }else{
+    label='이 한자의 뜻·음은?';main=q.data.ch;sub='';answer=q.data.hun;
+    options=buildOpts(answer,CHARS.map(x=>x.hun));
+  }
+  document.getElementById('qlabel').textContent=label;
+  document.getElementById('qmain').textContent=main;
+  document.getElementById('qsub').textContent=sub;
+
+  const cbox=document.getElementById('choices');
+  cbox.innerHTML='';
+  options.forEach(opt=>{
+    const d=document.createElement('div');
+    d.className='choice';d.textContent=opt;
+    d.onclick=()=>pick(d,opt,answer,q);
+    cbox.appendChild(d);
+  });
+}
+
+function buildOpts(answer,all){
+  const others=shuffle([...new Set(all.filter(x=>x!==answer))]).slice(0,3);
+  return shuffle([answer,...others]);
+}
+
+function pick(el,opt,answer,q){
+  document.querySelectorAll('.choice').forEach(c=>{
+    c.classList.add('disabled');
+    if(c.textContent===answer)c.classList.add('correct');
+  });
+  const ok=opt===answer;
+  if(ok)quiz.score++;
+  else{el.classList.add('wrong');quiz.wrong.push({q,answer});}
+  document.getElementById('qscore').textContent=`⭐ ${quiz.score}점`;
+
+  const ex=document.getElementById('explain');
+  if(q.type==='char'){
+    ex.innerHTML=`<div class="ex-word">${q.data.ch} <small>${q.data.hun}</small></div>
+      <div class="ex-c">${q.data.parts}</div>
+      <div class="ex-s">💡 ${q.data.story}</div>${notesHtml(q.data.notes)}`;
+  }else{
+    const w=q.data;
+    ex.innerHTML=`<div class="ex-word">${w.w} <small>${w.y} · ${w.m}</small></div>`+
+      w.c.map(c=>`<div class="ex-c"><b>${c[0]} ${c[1]}</b> — ${c[2]}</div><div class="ex-s">💡 ${c[3]}</div>${notesHtml(c[4])}`).join('')+
+      confuseHtml(w,'');
+  }
+  ex.classList.add('show');
+  document.getElementById('nextWrap').style.display='block';
+}
+
+document.getElementById('nextBtn').onclick=()=>{
+  quiz.i++;
+  if(quiz.i>=quiz.list.length)showResult();
+  else showQ();
+};
+
+function showResult(){
+  document.getElementById('quiz-play').style.display='none';
+  const box=document.getElementById('quiz-result');
+  box.style.display='block';
+  const pct=Math.round(quiz.score/quiz.list.length*100);
+  let msg = pct===100?'완벽해요! 🎉':pct>=80?'훌륭해요! 👏':pct>=60?'좋아요, 조금만 더! 💪':'복습이 필요해요 📚';
+  box.innerHTML=`
+    <div class="result">
+      <div class="score">${quiz.score} / ${quiz.list.length}</div>
+      <p>${pct}점 · ${msg}</p>
+      <button class="btn" onclick="location.reload()">다시 풀기</button>
+      ${quiz.wrong.length?`<div class="wrong-list"><h4>틀린 문제 복습 (${quiz.wrong.length})</h4>
+        ${quiz.wrong.map(x=>{
+          const q=x.q;
+          if(q.type==='char')return `<div class="wi">${q.data.ch} → <b>${q.data.hun}</b></div>`;
+          return `<div class="wi">${q.data.w} (${q.data.y}) → <b>${x.answer}</b></div>`;
+        }).join('')}</div>`:''}
+    </div>`;
+}
+
+/* ===== 오늘 학습: 간격 반복(SRS) + 능동 인출 ===== */
+const SRS_KEY='kanjiSRS_v2';
+const SRS_INT=[0,1,3,7,14,30];        // box(1~5) → 며칠 뒤 복습
+const SRS_NEW_PER_DAY=8;
+const dayNo=()=>Math.floor(Date.now()/86400000);
+const srsLoad=()=>{try{return JSON.parse(localStorage.getItem(SRS_KEY))||{}}catch(e){return {}}};
+const srsSave=s=>{try{localStorage.setItem(SRS_KEY,JSON.stringify(s))}catch(e){}};
+
+function srsCounts(){
+  const s=srsLoad(),t=dayNo();let neu=0,due=0,mastered=0;
+  WORDS.forEach(w=>{const st=s[w.w];
+    if(!st){neu++;return;}
+    if(st.box>=5)mastered++;
+    if(st.due<=t)due++;
+  });
+  return {neu,due,mastered};
+}
+function srsDashHtml(c){
+  return `<div class="stat new"><b>${c.neu}</b><span>새 카드</span></div>
+    <div class="stat due"><b>${c.due}</b><span>오늘 복습</span></div>
+    <div class="stat done"><b>${c.mastered}</b><span>마스터</span></div>`;
+}
+function renderDash(){ document.getElementById('srsDash').innerHTML=srsDashHtml(srsCounts()); }
+
+function srsBuildQueue(){
+  const s=srsLoad(),t=dayNo();const due=[],fresh=[];
+  WORDS.forEach(w=>{const st=s[w.w];
+    if(!st)fresh.push(w); else if(st.due<=t)due.push(w);});
+  return shuffle(due).concat(shuffle(fresh).slice(0,SRS_NEW_PER_DAY));
+}
+
+let srsS={queue:[],i:0,cur:null};
+function srsStart(){
+  const queue=srsBuildQueue();
+  if(!queue.length){srsFinish(true);return;}
+  srsS={queue,i:0,cur:null};
+  document.getElementById('srsStart').style.display='none';
+  document.getElementById('srsDone').style.display='none';
+  document.getElementById('srsPlay').style.display='block';
+  srsShow();
+}
+function srsShow(){
+  const w=srsS.queue[srsS.i];srsS.cur=w;
+  document.getElementById('srsCount').textContent=`${srsS.i+1} / ${srsS.queue.length}`;
+  document.getElementById('srsRemain').textContent=`남은 ${srsS.queue.length-srsS.i}장`;
+  document.getElementById('srsBar').style.width=(srsS.i/srsS.queue.length*100)+'%';
+  document.getElementById('srsWord').textContent=w.w;
+  const ex=document.getElementById('srsReveal');ex.classList.remove('show');ex.innerHTML='';
+  document.getElementById('srsGrade').style.display='none';
+  document.getElementById('srsRevealWrap').style.display='block';
+  const wrap=document.getElementById('srsWriteWrap');
+  const showW=document.getElementById('srsWrite').checked;
+  wrap.style.display=showW?'block':'none';
+  if(showW){
+    const rows=document.getElementById('srsRows');rows.innerHTML='';
+    rows.appendChild(makeSheet(4,2)); // 8칸 합친 연습장(안내선 없이 떠올려 쓰기)
+  }
+}
+function srsRevealFn(){
+  const w=srsS.cur,ex=document.getElementById('srsReveal');
+  ex.innerHTML=`<div class="ex-word">${w.w} <small>${w.y} · ${w.m}</small></div>`+
+    w.c.map(c=>`<div class="ex-c"><b>${c[0]} ${c[1]}</b> — ${c[2]}</div><div class="ex-s">💡 ${c[3]}</div>${notesHtml(c[4])}`).join('')+
+    confuseHtml(w,'');
+  ex.classList.add('show');
+  document.getElementById('srsRevealWrap').style.display='none';
+  document.getElementById('srsGrade').style.display='grid';
+}
+function srsGradeFn(g){
+  const s=srsLoad(),t=dayNo(),w=srsS.cur.w;
+  let st=s[w]||{box:0,due:t};
+  if(g==='again'){st.box=1;st.due=t+1;}
+  else if(g==='hard'){st.box=Math.max(1,st.box);st.due=t+SRS_INT[st.box];}
+  else {st.box=Math.min(5,(st.box||0)+1);st.due=t+SRS_INT[st.box];}
+  st.t=t; s[w]=st; srsSave(s);
+  srsS.i++;
+  if(srsS.i>=srsS.queue.length)srsFinish(false);
+  else srsShow();
+}
+function srsFinish(nothingDue){
+  document.getElementById('srsPlay').style.display='none';
+  document.getElementById('srsStart').style.display='none';
+  const box=document.getElementById('srsDone');box.style.display='block';
+  box.innerHTML=`<div class="result">
+     <div class="score">${nothingDue?'🎉':'✅'}</div>
+     <p>${nothingDue?'오늘 복습할 카드가 없어요. 나중에 다시 오세요.':'오늘 학습 완료! 다음 복습 일정이 자동으로 잡혔어요.'}</p>
+     <div class="srs-dash" style="margin-top:16px">${srsDashHtml(srsCounts())}</div>
+     <div style="margin-top:16px"><button class="btn" onclick="location.reload()">닫기</button></div>
+   </div>`;
+  renderDash();
+}
+
+renderDash();
+document.getElementById('srsStartBtn').onclick=srsStart;
+document.getElementById('srsResetBtn').onclick=()=>{
+  if(confirm('모든 복습 일정(진도)을 지울까요?')){localStorage.removeItem(SRS_KEY);renderDash();}
+};
+document.getElementById('srsRevealBtn').onclick=srsRevealFn;
+document.getElementById('srsClear').onclick=()=>document.querySelectorAll('#srsRows canvas').forEach(c=>c._bg&&c._bg());
+document.querySelectorAll('.srs-grade .grade').forEach(b=>b.onclick=()=>srsGradeFn(b.dataset.g));
+
+/* ----- 진도 동기화(내보내기/불러오기) ----- */
+function pad2(n){return (n<10?'0':'')+n;}
+function stampName(){const d=new Date();return `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}`;}
+function srsExport(){
+  const data=JSON.stringify({v:2,app:'kanji-srs',srs:srsLoad()});
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`kanji_진도_${stampName()}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  if(navigator.clipboard) navigator.clipboard.writeText(data).catch(()=>{});
+}
+function srsMerge(inc){
+  const cur=srsLoad(); let added=0,updated=0;
+  Object.keys(inc||{}).forEach(k=>{
+    const a=cur[k], b=inc[k];
+    if(!b||typeof b!=='object')return;
+    if(!a){cur[k]=b;added++;return;}
+    const ta=a.t||0, tb=b.t||0;
+    if(tb>ta || (tb===ta && (b.box||0)>(a.box||0))){cur[k]=b;updated++;}
+  });
+  srsSave(cur); renderDash();
+  return {added,updated};
+}
+function srsImportText(txt){
+  try{
+    const o=JSON.parse(txt);
+    const inc=(o && o.srs)?o.srs:o;
+    if(!inc||typeof inc!=='object')throw new Error('형식이 올바르지 않아요');
+    const r=srsMerge(inc);
+    alert(`불러오기 완료 · 새로 추가 ${r.added}개, 갱신 ${r.updated}개 병합했어요.`);
+  }catch(e){ alert('파일을 읽지 못했어요: '+e.message); }
+}
+document.getElementById('srsExport').onclick=srsExport;
+document.getElementById('srsImportBtn').onclick=()=>document.getElementById('srsFile').click();
+document.getElementById('srsFile').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader(); r.onload=()=>srsImportText(r.result); r.readAsText(f);
+  e.target.value='';
+};
+</script>
+</body>
+</html>

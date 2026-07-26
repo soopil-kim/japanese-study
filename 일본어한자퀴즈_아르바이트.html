@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일본어 한자 퀴즈 — アルバイト 지문</title>
+<style>
+  :root{
+    --bg:#0f1420; --card:#1a2130; --card2:#232c3f; --line:#2d3850;
+    --text:#e8edf5; --sub:#9aa7bd; --accent:#5b8cff; --accent2:#7c5bff;
+    --ok:#33d69f; --ng:#ff5d6c; --gold:#ffc64b;
+  }
+  html{font-size:28px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;
+    background:linear-gradient(160deg,#0f1420,#141b2b);
+    color:var(--text);min-height:100vh;padding:16px;line-height:1.55;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+  header{text-align:center;padding:18px 0 10px}
+  header h1{font-size:1.4rem;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{color:var(--sub);font-size:.8rem;margin-top:4px}
+
+  .tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap;justify-content:center}
+  .tab{padding:9px 16px;border-radius:999px;background:var(--card);color:var(--sub);
+    border:1px solid var(--line);cursor:pointer;font-size:.85rem;transition:.15s}
+  .tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+  .tab:hover{color:var(--text)}
+
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .25s}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ---- 학습 카드 ---- */
+  .searchbar{width:100%;padding:11px 14px;border-radius:12px;background:var(--card);
+    border:1px solid var(--line);color:var(--text);font-size:.85rem;margin-bottom:12px}
+  .searchbar::placeholder{color:var(--sub)}
+  .flash-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.8rem;color:var(--sub)}
+  .hide-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+  .hide-toggle input{width:16px;height:16px;accent-color:var(--accent)}
+  .wordcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+  .wordcard.flash{cursor:pointer}
+  .wordcard .top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .wordcard .kanji{font-size:1.7rem;font-weight:700;letter-spacing:2px}
+  .wordcard .yomi{color:var(--accent);font-size:.95rem}
+  .wordcard .mean{color:var(--gold);font-size:1rem;margin-left:auto;font-weight:600}
+  .chars{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+  .chrow{background:var(--card2);border-radius:10px;padding:11px 13px;display:flex;gap:12px;align-items:flex-start}
+  .chrow .c{font-size:1.6rem;font-weight:700;min-width:40px;text-align:center;line-height:1.1}
+  .chrow .cinfo{flex:1}
+  .chrow .cline{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+  .chrow .hun{color:var(--ok);font-weight:700;white-space:nowrap;font-size:.95rem}
+  .chrow .parts{color:var(--sub);font-size:.78rem}
+  .chrow .story{margin-top:5px;font-size:.82rem;color:var(--text);opacity:.96}
+  .notes{margin-top:7px;display:flex;flex-direction:column;gap:4px}
+  .note{font-size:.74rem;color:var(--sub);border-left:2px solid var(--accent);padding-left:8px;line-height:1.45}
+  .wordcard .hidden-blur{filter:blur(8px);opacity:.5;transition:.15s}
+  .nav{display:flex;gap:10px;margin-top:14px}
+  .navbtn{flex:1}
+  .nav-hint{text-align:center;color:var(--sub);font-size:.68rem;margin-top:10px}
+
+  /* ---- 퀴즈 ---- */
+  .quiz-setup{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center}
+  .quiz-setup h3{margin-bottom:14px;font-size:.95rem}
+  .qtypes{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .qopt{display:flex;align-items:center;gap:10px;background:var(--card2);padding:12px 14px;
+    border-radius:10px;cursor:pointer;text-align:left;border:1px solid transparent;font-size:.85rem}
+  .qopt input{width:20px;height:20px;accent-color:var(--accent)}
+  .btn{padding:12px 22px;border:none;border-radius:12px;font-size:.9rem;font-weight:600;
+    cursor:pointer;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;transition:.15s}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line)}
+
+  .qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:.82rem;color:var(--sub)}
+  .bar{height:6px;background:var(--card);border-radius:999px;overflow:hidden;margin-bottom:18px}
+  .bar>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 18px;text-align:center}
+  .qlabel{color:var(--sub);font-size:.8rem;margin-bottom:10px}
+  .qmain{font-size:2.1rem;font-weight:700;letter-spacing:2px;margin-bottom:6px}
+  .qsub{color:var(--accent);margin-bottom:20px;min-height:1.2em;font-size:.9rem}
+  .choices{display:grid;gap:10px}
+  .choice{padding:14px;border-radius:12px;background:var(--card2);border:1px solid var(--line);
+    cursor:pointer;font-size:.9rem;transition:.12s;text-align:center}
+  .choice:hover{border-color:var(--accent)}
+  .choice.correct{background:rgba(51,214,159,.18);border-color:var(--ok);color:var(--ok);font-weight:700}
+  .choice.wrong{background:rgba(255,93,108,.16);border-color:var(--ng);color:var(--ng)}
+  .choice.disabled{cursor:default;pointer-events:none}
+  .explain{margin-top:16px;background:var(--card2);border-radius:12px;padding:14px;text-align:left;display:none}
+  .explain.show{display:block;animation:fade .2s}
+  .explain .ex-word{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+  .explain .ex-word small{color:var(--accent);font-weight:400;margin-left:6px;font-size:.7rem}
+  .explain .ex-c{color:var(--sub);font-size:.82rem;margin-top:8px}
+  .explain .ex-c b{color:var(--ok)}
+  .explain .ex-s{color:var(--text);font-size:.82rem;margin-top:3px}
+  .explain .note{margin-top:4px}
+  .next-wrap{margin-top:16px;text-align:center}
+
+  .result{text-align:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px 20px}
+  .result .score{font-size:2.6rem;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .result p{color:var(--sub);margin:8px 0 20px;font-size:.85rem}
+  .wrong-list{text-align:left;margin-top:20px}
+  .wrong-list h4{margin-bottom:8px;color:var(--ng);font-size:.85rem}
+  .wrong-list .wi{background:var(--card2);border-radius:8px;padding:9px 12px;margin-bottom:6px;font-size:.8rem}
+  .footer{text-align:center;color:var(--sub);font-size:.65rem;padding:20px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>일본어 한자 퀴즈</h1>
+    <p>「アルバイト」 독해 지문 · 33단어</p>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="study">📖 학습 카드</div>
+    <div class="tab" data-tab="quiz">✏️ 퀴즈</div>
+  </div>
+
+  <!-- 학습 카드 -->
+  <div class="panel active" id="study">
+    <input class="searchbar" id="search" placeholder="🔍 단어·뜻·한자로 검색 (예: 경험, 学, けん)">
+    <div class="flash-head">
+      <span id="flashCount"></span>
+      <label class="hide-toggle"><input type="checkbox" id="hideToggle"> 뜻·읽기 가리고 보기</label>
+    </div>
+    <div id="cardlist"></div>
+    <div class="nav">
+      <button class="btn ghost navbtn" id="prevBtn">← 이전</button>
+      <button class="btn navbtn" id="nextCardBtn">다음 →</button>
+    </div>
+    <p class="nav-hint">← → 방향키로도 넘길 수 있어요 · 가리기 모드에선 카드를 누르면 공개돼요</p>
+  </div>
+
+  <!-- 퀴즈 -->
+  <div class="panel" id="quiz">
+    <div id="quiz-setup" class="quiz-setup">
+      <h3>퀴즈 유형을 고르세요</h3>
+      <div class="qtypes">
+        <label class="qopt"><input type="checkbox" value="meaning" checked> 단어 → 뜻 맞히기</label>
+        <label class="qopt"><input type="checkbox" value="reading" checked> 단어 → 읽기(히라가나) 맞히기</label>
+        <label class="qopt"><input type="checkbox" value="char" checked> 한자 한 글자 → 훈음 맞히기</label>
+      </div>
+      <button class="btn" id="startBtn">퀴즈 시작 (20문제)</button>
+    </div>
+
+    <div id="quiz-play" style="display:none">
+      <div class="qhead"><span id="qcount"></span><span id="qscore"></span></div>
+      <div class="bar"><div id="qbar" style="width:0%"></div></div>
+      <div class="qcard">
+        <div class="qlabel" id="qlabel"></div>
+        <div class="qmain" id="qmain"></div>
+        <div class="qsub" id="qsub"></div>
+        <div class="choices" id="choices"></div>
+        <div class="explain" id="explain"></div>
+        <div class="next-wrap" id="nextWrap" style="display:none">
+          <button class="btn" id="nextBtn">다음 →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="quiz-result" style="display:none"></div>
+  </div>
+
+  <div class="footer">스스로 만든 학습 도구 · 브라우저에서 열면 바로 작동해요</div>
+</div>
+
+<script>
+/* ===== 데이터: [한자, 훈음, 구성, 💡연상, 🔎복잡글자풀이(선택)] ===== */
+const WORDS = [
+ {w:"学生",y:"がくせい",m:"학생",c:[
+   ["学","배울 학","冖(지붕)+子(아이 자)","지붕(冖) 아래서 아이(子)가 두 손으로 글을 만지며 '배우는' 모습."],
+   ["生","날 생","땅에서 돋는 새싹","땅 위로 새싹이 뾰족 돋아나는 모양 → '나다·살다'."]]},
+ {w:"一度",y:"いちど",m:"한 번",c:[
+   ["一","한 일","가로획 하나","막대기 하나를 눕힌 모양 → 숫자 '하나'."],
+   ["度","법도 도","广(집 엄)+又(손)","집(广) 안에서 손(又)으로 한 뼘 두 뼘 길이를 재는 모습 → '정도·횟수'. 一度=한 회.",
+     ["广(엄호): 벼랑에 기대 지은 집","又(또 우): 오른손 모양"]]]},
+ {w:"現在",y:"げんざい",m:"현재",c:[
+   ["現","나타날 현","王(玉,옥)+見(볼 견)","옥(玉)을 닦자 광채가 눈(見)앞에 반짝 '나타남' → 지금 눈앞에 있는 때 = 현재.",
+     ["王=玉(구슬 옥): 보석","見(볼 견): 目(눈)+儿(사람) → 사람이 눈으로 봄"]],
+   ["在","있을 재","才(싹 재)+土(흙)","흙(土)을 뚫고 싹(才)이 나와 거기 '있음·존재'.",
+     ["才(재주 재): 땅을 뚫고 나온 새싹 → 타고난 재능"]]]},
+ {w:"高校生",y:"こうこうせい",m:"고등학생",c:[
+   ["高","높을 고","높은 누각 모양","성문 위에 우뚝 솟은 망루(누각)를 그린 글자 → '높다'."],
+   ["校","학교 교","木(나무)+交(사귈 교)","나무(木) 울타리 안에서 학생들이 어울리는(交) 곳 → '학교'.",
+     ["交(사귈 교): 다리를 X자로 꼰 사람 → 엇갈리다·사귀다"]],
+   ["生","날 생","돋는 새싹","새싹처럼 태어난 사람 → 学生·高校生의 生."]]},
+ {w:"大学生",y:"だいがくせい",m:"대학생",c:[
+   ["大","큰 대","팔다리 벌린 사람","사람이 팔다리를 한껏 벌리고 선 모습 → '크다'."],
+   ["学","배울 학","冖(지붕)+子(아이)","지붕 아래 배우는 아이."],
+   ["生","날 생","돋는 새싹","태어난 사람."]]},
+ {w:"対象",y:"たいしょう",m:"대상",c:[
+   ["対","대할 대","촛대+寸(손)","손(寸)으로 촛대를 상대 앞에 '마주' 세우는 모습 → '마주하다'.",
+     ["寸(마디 촌): 손목까지 한 치 → 손·법도"]],
+   ["象","코끼리 상","코끼리 모양","긴 코 코끼리를 통째로 그린 글자 → 모습·형상. 対象=마주하고(対) 있는 모습(象)."]]},
+ {w:"経験",y:"けいけん",m:"경험",c:[
+   ["経","지날 경","糸(실)+巠(곧을 경)","베틀에 곧게(巠) 걸린 세로 실(糸)=날실 → 처음부터 끝까지 '지나가는' 길.",
+     ["巠(물줄기 경): 물이 곧게 흐르는 줄기"]],
+   ["験","시험 험","馬(말)+僉(다 첨)","말(馬)을 여럿이 다 같이(僉) 몰아 보며 좋은 말인지 '시험'함. 経験=지나며(経) 시험해(験) 본 것.",
+     ["僉(다 첨): 여러 사람이 모두 모임"]]]},
+ {w:"以上",y:"いじょう",m:"이상",c:[
+   ["以","써 이","쟁기를 든 사람","사람이 쟁기(도구)를 들고 일함 → '~을 가지고·~로써'."],
+   ["上","위 상","기준선 위에 점","땅 기준선 위에 점을 콕 → '위'. 90%以上=90%를 딛고 그 위."]]},
+ {w:"理由",y:"りゆう",m:"이유",c:[
+   ["理","다스릴 리","王(玉,옥)+里(마을 리)","옥(玉)에 난 결을 마을(里)길처럼 따라가며 다듬음 → 이치를 '다스리다'.",
+     ["里(마을 리): 田(밭)+土(흙) → 사람 사는 마을"]],
+   ["由","말미암을 유","밭에서 싹이 솟음","밭(田)에서 싹이 위로 삐죽 → 무언가로 '말미암아(원인)' 생김."]]},
+ {w:"社会",y:"しゃかい",m:"사회",c:[
+   ["社","모일 사","示(보일 시)+土(흙)","흙(土) 위 제단(示) 앞에 마을 사람이 다 모여 제사 → 공동체.",
+     ["示(보일 시): 제단 모양 → 신·제사 관련 부수"]],
+   ["会","모일 회","人(사람)+云(구름 운)","사람들(人)이 구름(云)처럼 뭉게뭉게 몰려드는 '모임'.",
+     ["云(구름 운): 뭉게뭉게 피어난 구름"]]]},
+ {w:"勉強",y:"べんきょう",m:"공부",c:[
+   ["勉","힘쓸 면","免(면할 면)+力(힘)","곤경에서 벗어나려(免) 힘(力)껏 애쓰는 모습 → '힘쓰다'.",
+     ["免(면할 면): 투구를 벗는 사람 → 벗다·피하다"]],
+   ["強","강할 강","弓(활)+虫(벌레)","활시위(弓)처럼 질긴 벌레(虫) → 세고 '강하다'.",
+     ["⚠️ 勉強(べんきょう)=공부는 일본식 의미 — '억지로(強) 힘써(勉) 하는 것'이 공부가 됨. 한국 한자어에 없으니 통암기"]]]},
+ {w:"人間関係",y:"にんげんかんけい",m:"인간관계",c:[
+   ["人","사람 인","걷는 사람","두 다리로 걸어가는 '사람'의 옆모습."],
+   ["間","사이 간","門(문)+日(해)","닫힌 문(門) 틈으로 햇빛(日)이 새어드는 '사이'."],
+   ["関","빗장 관","門(문)+빗장 묶음","문(門)에 실로 빗장을 엮어 잠근 모양 → 서로 얽어매는 '관계·관문'."],
+   ["係","맬 계","亻(사람)+系(이을 계)","사람(亻)들을 실로 이어(系) 묶음 → 서로 '매인' 사이.",
+     ["系(이을 계): 실(糸)을 손으로 걸어 잇는 모양"]]]},
+ {w:"将来",y:"しょうらい",m:"장래·미래",c:[
+   ["将","장차 장","爿(침상)+月(고기)+寸(손)","제사상(爿) 앞에서 고기(月)를 손(寸)에 받쳐 든 대장 → '장수', 앞장설 사람 → '장차'.",
+     ["爿(나뭇조각 장): 통나무를 세로로 쪼갠 조각"]],
+   ["来","올 래","보리 이삭 모양","하늘이 내려준 보리(이삭)가 '오다'. 将来=장차(将) 올(来) 날."]]},
+ {w:"就職",y:"しゅうしょく",m:"취직",c:[
+   ["就","나아갈 취","京(언덕)+尤(더욱 우)","높은 언덕(京) 위로 더욱(尤) 나아가 자리 잡음 → '나아가다·앉다'.",
+     ["京(서울 경): 언덕 위 높은 집 → 도읍","尤(더욱 우): 특별히 더"]],
+   ["職","직분 직","耳(귀)+戠(새길 시)","지시를 귀(耳)로 새겨듣고(戠) 해내는 맡은 일 → '직분'. 就職=직(職)에 나아감(就).",
+     ["戠(새길 시): 音(소리)+戈(창=새김칼) → 새겨 넣다"]]]},
+ {w:"卒業",y:"そつぎょう",m:"졸업",c:[
+   ["卒","마칠 졸","옷(衣)에 표식 단 병졸","군복(衣)에 표식(十)을 단 병졸 → 병역을 다 '마친' 사람 → 끝내다."],
+   ["業","업 업","악기 거는 널판","종·북 걸던 톱니 널판 → 손 많이 가는 '일·학업'. 卒業=학업(業)을 마침(卒)."]]},
+ {w:"有利",y:"ゆうり",m:"유리(함)",c:[
+   ["有","있을 유","又(손)+月(고기)","손에 고기 한 덩이를 떡하니 쥐고 '가지고 있음'."],
+   ["利","이할 리","禾(벼)+刂(선칼도)","잘 여문 벼(禾)를 칼(刂)로 베어 거두는 이득. 有利=이로움(利)이 있음(有).",
+     ["刂(선칼도): 刀(칼)가 글자 옆에 올 때 모양"]]]},
+ {w:"仕事",y:"しごと",m:"일·업무",c:[
+   ["仕","섬길 사","亻(사람)+士(선비 사)","선비(士)가 사람(亻)을 곁에서 모시며 일함 → '섬기다·일하다'.",
+     ["士(선비 사): 하나(一)를 배우면 열(十)을 아는 사람"]],
+   ["事","일 사","손에 붓을 쥔 모양","손(又)에 붓·기록 도구를 쥐고 문서를 처리하는 관리 → '일·사무'.",
+     ["⚠️ 仕事(しごと)는 훈독 — し(하다)+ごと(일)로 통암기"]]]},
+ {w:"自分",y:"じぶん",m:"자기·자신",c:[
+   ["自","스스로 자","코 모양","'나'라고 말할 때 손가락으로 자기 코(自)를 가리킴 → '스스로'."],
+   ["分","나눌 분","八(가를 팔)+刀(칼)","칼(刀)로 둘로 딱 가름(八) → 나눔·몫. 自分=스스로(自)에게 나뉜 몫(分) = 나 자신."]]},
+ {w:"学費",y:"がくひ",m:"학비",c:[
+   ["学","배울 학","冖(지붕)+子(아이)","지붕 아래 배우는 아이."],
+   ["費","쓸 비","弗(흩어질 불)+貝(조개 패)","돈(貝)이 사방으로 흩어져(弗) 나감 → '쓰다·비용'.",
+     ["貝(조개 패): 옛날 조개껍데기 화폐 → 돈·재물","弗(아닐 불): 여기선 활대가 튕겨 흩어지는 모양"]]]},
+ {w:"生活費",y:"せいかつひ",m:"생활비",c:[
+   ["生","날 생","돋는 새싹","살아감."],
+   ["活","살 활","氵(물)+舌(혀 설)","혀(舌)가 물(氵)에 젖어 촉촉 → 물 만난 고기처럼 '살아 있다·활기'."],
+   ["費","쓸 비","弗(흩어질)+貝(돈)","돈이 흩어져 나감 → 비용. 生活費=살아가는 데 드는 돈."]]},
+ {w:"趣味",y:"しゅみ",m:"취미",c:[
+   ["趣","뜻 취","走(달릴 주)+取(가질 취)","마음이 그쪽으로 달려가(走) 꼭 붙잡는(取) 것 → '취미·취향'.",
+     ["取(가질 취): 耳(귀)+又(손) → 손으로 귀를 잡아 가짐"]],
+   ["味","맛 미","口(입)+未(아닐 미)","입(口)에 넣고 음미하는 '맛'. 趣味=마음이 달려가 맛보는 것.",
+     ["未(아닐 미): 나무 위 아직 덜 자란 가지 → '아직 ~아니다'"]]]},
+ {w:"大切",y:"たいせつ",m:"소중함",c:[
+   ["大","큰 대","팔다리 벌린 사람","'크다'."],
+   ["切","끊을 절","七(칼자국)+刀(칼)","칼(刀)로 딱 잘라(七) 끊음.",
+     ["⚠️ 大切(たいせつ)=소중함은 일본식 의미 — '크게(大) 잘라(切) 따로 둘 만큼 귀한 것'으로 연상해 통암기"]]]},
+ {w:"時間",y:"じかん",m:"시간",c:[
+   ["時","때 시","日(해)+寺(관청 사)","해(日)가 관청(寺) 일정표대로 어김없이 움직이는 '때'.",
+     ["寺(절 사): 본래 '관청', 나중에 '절'이 됨"]],
+   ["間","사이 간","門(문)+日(해)","문틈으로 새는 햇빛 → '사이'. 時間=때와 때의 사이."]]},
+ {w:"半数",y:"はんすう",m:"반수·절반",c:[
+   ["半","반 반","八(가름)+牛(소)","소(牛) 한 마리를 둘로 딱 가른(八) '절반'."],
+   ["数","셈 수","婁(쌓을 루)+攵(칠 복)","쌓아 놓은 것(婁)을 막대로 짚어 가며(攵) 하나하나 '세다'.",
+     ["攵(칠 복): 손에 막대를 든 모양 → 치다·두드리다"]]]},
+ {w:"禁止",y:"きんし",m:"금지",c:[
+   ["禁","금할 금","林(수풀)+示(제단)","신성한 숲(林)의 제단(示)엔 아무나 못 들어감 → '금하다'."],
+   ["止","그칠 지","발자국 모양","발(止)을 그 자리에 딱 멈춤. 禁止=금하여 멈추게 함."]]},
+ {w:"単純",y:"たんじゅん",m:"단순",c:[
+   ["単","홑 단","끝 갈라진 사냥도구","Y자로 갈라진 사냥도구/방패 하나 → '홑·하나'."],
+   ["純","순수할 순","糸(실)+屯(모일 둔)","갓 뽑아 아직 물들이지 않은 생실(糸) → '순수·순진'.",
+     ["屯(진칠 둔): 새싹이 움츠려 모인 모양"]]]},
+ {w:"一方",y:"いっぽう",m:"한편",c:[
+   ["一","한 일","가로획 하나","'하나'."],
+   ["方","모 방","쟁기 모양","쟁기 날이 가리키는 '방향·쪽'. 一方=한(一) 쪽(方) → 한편."]]},
+ {w:"意見",y:"いけん",m:"의견",c:[
+   ["意","뜻 의","音(소리)+心(마음)","마음(心)속에서 울려 나오는 소리(音) = '뜻'."],
+   ["見","볼 견","目(눈)+儿(사람)","사람(儿) 몸 위에 커다란 눈(目) 하나 — 보는 것. 意見=마음의 뜻을 내보인 '견해'."]]},
+ {w:"役に立つ",y:"やくにたつ",m:"도움이 되다",c:[
+   ["役","부릴 역","彳(길)+殳(몽둥이 수)","몽둥이(殳) 들고 길(彳) 떠나 나랏일에 '부려짐' → 역할·임무.",
+     ["殳(몽둥이 수): 손에 든 창·몽둥이"]],
+   ["立","설 립","땅 위 사람","역할(役)이 제 자리에 딱 서면(立) '도움이 된다'.",
+     ["⚠️ 役に立つ(やくにたつ)=도움이 되다 — 관용구로 통암기"]]]},
+ {w:"働く",y:"はたらく",m:"일하다",c:[
+   ["働","일할 동","亻(사람)+動(움직일 동)","사람(亻)이 몸을 움직여(動) '일함'.",
+     ["動(움직일 동): 重(무거울 중)+力(힘) → 무거운 것을 힘으로 움직임","⚠️ 働는 일본에서 만든 한자(和製漢字)! はたらく는 훈독"]]]},
+ {w:"答える",y:"こたえる",m:"대답하다",c:[
+   ["答","대답 답","竹(대나무)+合(합할 합)","대나무(竹) 쪽지 질문에 꼭 맞게(合) 돌려보내는 '대답'.",
+     ["合(합할 합): 그릇 입(口)에 뚜껑이 딱 맞음","⚠️ こたえる는 훈독(오쿠리가나 える)"]]]},
+ {w:"積む",y:"つむ",m:"쌓다",c:[
+   ["積","쌓을 적","禾(벼)+責(꾸짖을 책)","볏단(禾)을 빚 갚듯 책임지고(責) 차곡차곡 '쌓음'. 経験を積む=경험을 쌓다.",
+     ["責(꾸짖을 책): 가시(朿)+돈(貝) → 빚 갚으라 재촉 → 책임","⚠️ つむ는 훈독"]]]},
+ {w:"挙げる",y:"あげる",m:"들다·(예로) 들다",c:[
+   ["挙","들 거","여러 손+手(손)","여러 사람이 더불어 손(手)으로 받들어 '들어 올림'. 理由を挙げる=이유를 (예로) 들다.",
+     ["⚠️ あげる는 훈독(오쿠리가나 げる)"]]]}
+];
+
+/* ===== 탭 전환 ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+  };
+});
+
+/* ===== 학습 카드 (한 장씩 넘기기) ===== */
+let flashList=WORDS.slice();
+let flashIdx=0;
+let flashRevealed=false;
+
+function notesHtml(arr){
+  if(!arr||!arr.length)return '';
+  return `<div class="notes">${arr.map(n=>`<div class="note">🔎 ${n}</div>`).join('')}</div>`;
+}
+function charRow(c){
+  return `<div class="chrow"><span class="c">${c[0]}</span>
+    <div class="cinfo">
+      <div class="cline"><span class="hun">${c[1]}</span><span class="parts">${c[2]}</span></div>
+      <div class="story">💡 ${c[3]}</div>${notesHtml(c[4])}
+    </div></div>`;
+}
+
+function renderCard(){
+  const box=document.getElementById('cardlist');
+  const hide=document.getElementById('hideToggle').checked;
+  if(!flashList.length){
+    box.innerHTML='<p style="color:var(--sub);text-align:center;padding:40px">검색 결과가 없어요</p>';
+    document.getElementById('flashCount').textContent='';
+    return;
+  }
+  if(flashIdx>=flashList.length)flashIdx=0;
+  const x=flashList[flashIdx];
+  const blur=(hide && !flashRevealed)?' hidden-blur':'';
+  box.innerHTML=`
+    <div class="wordcard flash" id="theCard">
+      <div class="top">
+        <span class="kanji">${x.w}</span>
+        <span class="yomi${blur}">${x.y}</span>
+        <span class="mean${blur}">${x.m}</span>
+      </div>
+      <div class="chars${blur}">${x.c.map(charRow).join('')}</div>
+    </div>`;
+  document.getElementById('flashCount').textContent=`${flashIdx+1} / ${flashList.length}`;
+  document.getElementById('theCard').onclick=()=>{
+    if(hide && !flashRevealed){flashRevealed=true;renderCard();}
+  };
+}
+function goCard(step){
+  if(!flashList.length)return;
+  flashIdx=(flashIdx+step+flashList.length)%flashList.length;
+  flashRevealed=false;
+  renderCard();
+}
+document.getElementById('prevBtn').onclick=()=>goCard(-1);
+document.getElementById('nextCardBtn').onclick=()=>goCard(1);
+document.getElementById('hideToggle').onchange=()=>{flashRevealed=false;renderCard();};
+document.getElementById('search').oninput=e=>{
+  const f=e.target.value.trim().toLowerCase();
+  flashList=WORDS.filter(x=>!f || x.w.includes(f)||x.y.includes(f)||x.m.toLowerCase().includes(f)
+    || x.c.some(c=>c[0].includes(f)||c[1].toLowerCase().includes(f)));
+  flashIdx=0;flashRevealed=false;renderCard();
+};
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('study').classList.contains('active'))return;
+  if(document.activeElement.id==='search')return;
+  if(e.key==='ArrowLeft')goCard(-1);
+  if(e.key==='ArrowRight')goCard(1);
+});
+renderCard();
+
+/* ===== 퀴즈 ===== */
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+const CHARMAP={};
+WORDS.forEach(x=>x.c.forEach(c=>{CHARMAP[c[0]]={hun:c[1],parts:c[2],story:c[3],notes:c[4]}}));
+const CHARS=Object.keys(CHARMAP).map(k=>({ch:k,...CHARMAP[k]}));
+
+let quiz={list:[],i:0,score:0,wrong:[]};
+
+document.getElementById('startBtn').onclick=()=>{
+  const types=[...document.querySelectorAll('.qtypes input:checked')].map(i=>i.value);
+  if(!types.length){alert('퀴즈 유형을 하나 이상 고르세요');return;}
+  const pool=[];
+  types.forEach(t=>{
+    if(t==='char') CHARS.forEach(c=>pool.push({type:'char',data:c}));
+    else WORDS.forEach(w=>pool.push({type:t,data:w}));
+  });
+  quiz={list:shuffle(pool).slice(0,20),i:0,score:0,wrong:[]};
+  document.getElementById('quiz-setup').style.display='none';
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('quiz-play').style.display='block';
+  showQ();
+};
+
+function showQ(){
+  const q=quiz.list[quiz.i];
+  document.getElementById('qcount').textContent=`${quiz.i+1} / ${quiz.list.length}`;
+  document.getElementById('qscore').textContent=`⭐ ${quiz.score}점`;
+  document.getElementById('qbar').style.width=(quiz.i/quiz.list.length*100)+'%';
+  document.getElementById('explain').classList.remove('show');
+  document.getElementById('nextWrap').style.display='none';
+
+  let label,main,sub,answer,options;
+  if(q.type==='meaning'){
+    label='이 단어의 뜻은?';main=q.data.w;sub=q.data.y;answer=q.data.m;
+    options=buildOpts(answer,WORDS.map(x=>x.m));
+  }else if(q.type==='reading'){
+    label='이 단어의 읽기는?';main=q.data.w;sub=q.data.m;answer=q.data.y;
+    options=buildOpts(answer,WORDS.map(x=>x.y));
+  }else{
+    label='이 한자의 뜻·음은?';main=q.data.ch;sub='';answer=q.data.hun;
+    options=buildOpts(answer,CHARS.map(x=>x.hun));
+  }
+  document.getElementById('qlabel').textContent=label;
+  document.getElementById('qmain').textContent=main;
+  document.getElementById('qsub').textContent=sub;
+
+  const cbox=document.getElementById('choices');
+  cbox.innerHTML='';
+  options.forEach(opt=>{
+    const d=document.createElement('div');
+    d.className='choice';d.textContent=opt;
+    d.onclick=()=>pick(d,opt,answer,q);
+    cbox.appendChild(d);
+  });
+}
+
+function buildOpts(answer,all){
+  const others=shuffle([...new Set(all.filter(x=>x!==answer))]).slice(0,3);
+  return shuffle([answer,...others]);
+}
+
+function pick(el,opt,answer,q){
+  document.querySelectorAll('.choice').forEach(c=>{
+    c.classList.add('disabled');
+    if(c.textContent===answer)c.classList.add('correct');
+  });
+  const ok=opt===answer;
+  if(ok)quiz.score++;
+  else{el.classList.add('wrong');quiz.wrong.push({q,answer});}
+  document.getElementById('qscore').textContent=`⭐ ${quiz.score}점`;
+
+  const ex=document.getElementById('explain');
+  if(q.type==='char'){
+    ex.innerHTML=`<div class="ex-word">${q.data.ch} <small>${q.data.hun}</small></div>
+      <div class="ex-c">${q.data.parts}</div>
+      <div class="ex-s">💡 ${q.data.story}</div>${notesHtml(q.data.notes)}`;
+  }else{
+    const w=q.data;
+    ex.innerHTML=`<div class="ex-word">${w.w} <small>${w.y} · ${w.m}</small></div>`+
+      w.c.map(c=>`<div class="ex-c"><b>${c[0]} ${c[1]}</b> — ${c[2]}</div><div class="ex-s">💡 ${c[3]}</div>${notesHtml(c[4])}`).join('');
+  }
+  ex.classList.add('show');
+  document.getElementById('nextWrap').style.display='block';
+}
+
+document.getElementById('nextBtn').onclick=()=>{
+  quiz.i++;
+  if(quiz.i>=quiz.list.length)showResult();
+  else showQ();
+};
+
+function showResult(){
+  document.getElementById('quiz-play').style.display='none';
+  const box=document.getElementById('quiz-result');
+  box.style.display='block';
+  const pct=Math.round(quiz.score/quiz.list.length*100);
+  let msg = pct===100?'완벽해요! 🎉':pct>=80?'훌륭해요! 👏':pct>=60?'좋아요, 조금만 더! 💪':'복습이 필요해요 📚';
+  box.innerHTML=`
+    <div class="result">
+      <div class="score">${quiz.score} / ${quiz.list.length}</div>
+      <p>${pct}점 · ${msg}</p>
+      <button class="btn" onclick="location.reload()">다시 풀기</button>
+      ${quiz.wrong.length?`<div class="wrong-list"><h4>틀린 문제 복습 (${quiz.wrong.length})</h4>
+        ${quiz.wrong.map(x=>{
+          const q=x.q;
+          if(q.type==='char')return `<div class="wi">${q.data.ch} → <b>${q.data.hun}</b></div>`;
+          return `<div class="wi">${q.data.w} (${q.data.y}) → <b>${x.answer}</b></div>`;
+        }).join('')}</div>`:''}
+    </div>`;
+}
+</script>
+</body>
+</html>

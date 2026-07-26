@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일본어 학습 홈</title>
+<style>
+  html{font-size:21px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;
+    background:linear-gradient(160deg,#f7f5ef,#efe9da);color:#20242c;min-height:100vh;padding:30px 18px;line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:1.5rem;margin-bottom:4px}
+  .lead{color:#6b7280;font-size:.82rem;margin-bottom:24px}
+  h2{font-size:1rem;margin:26px 0 12px;color:#5a4a2a;display:flex;align-items:center;gap:8px}
+  .card{display:block;background:#fff;border:1px solid #e3ddcd;border-radius:14px;
+    padding:15px 17px;margin-bottom:10px;text-decoration:none;color:inherit;transition:.12s}
+  .card:hover{border-color:#c99a4b;transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.06)}
+  .card .t{font-weight:700;font-size:.95rem}
+  .card .d{color:#7a8291;font-size:.76rem;margin-top:2px}
+  .card .arrow{float:right;color:#c99a4b;font-weight:700}
+  .deck{background:linear-gradient(135deg,#2d3850,#3a4a6a);border-color:transparent;color:#fff}
+  .deck .d{color:#c7d2e6}
+  .deck .arrow{color:#ffc64b}
+  .lesson{background:#fff;border:1px solid #e3ddcd;border-radius:14px;padding:14px 16px;margin-bottom:12px}
+  .lesson .lh{font-weight:700;font-size:.92rem;margin-bottom:8px}
+  .lesson .lh small{color:#8a8a8a;font-weight:400;margin-left:6px}
+  .linkrow{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{text-decoration:none;font-size:.78rem;background:#f2ece0;border:1px solid #ddd3bf;
+    color:#5a4a2a;padding:7px 13px;border-radius:999px}
+  .chip:hover{background:#e9dfc8}
+  .flow{background:#eef4ee;border:1px solid #c7ddc7;border-radius:12px;padding:14px 16px;
+    font-size:.82rem;color:#3f5a45;margin-bottom:8px;line-height:1.7}
+  .flow b{color:#2d5a3a}
+  .foot{margin-top:30px;color:#9a9a9a;font-size:.7rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📚 일본어 학습 홈</h1>
+  <div class="lead">모든 학습 자료의 시작점 · 갤탭 홈 화면에 바로가기로 추가해 두면 편해요</div>
+
+  <div class="flow">💡 <b>추천 순서</b> — ① 한자 마스터 덱에서 <b>오늘 학습(SRS)</b> 5~10분 → ② 막히는 글자는 학습카드·쓰기연습 → ③ 아래 지문을 소리 내어 읽고 막히면 탭해서 확인</div>
+
+  <h2>🔁 한자 (하나의 누적 덱)</h2>
+  <a class="card deck" href="일본어한자퀴즈.html">
+    <span class="arrow">→</span>
+    <div class="t">한자 마스터 덱</div>
+    <div class="d">오늘 학습(간격 반복 SRS) · 학습카드+쓰기연습 · 4지선다 · 진도 동기화 — 새 단어는 여기에 계속 추가</div>
+  </a>
+
+  <h2>📖 독해 지문 (단원별)</h2>
+  <div id="lessons"></div>
+
+  <h2>📘 학습법</h2>
+  <a class="card" href="한자_암기_공략법.html">
+    <span class="arrow">→</span>
+    <div class="t">한자 암기 공략법</div>
+    <div class="d">간격 반복·능동 인출·손글씨 등 근거 기반 방법 정리</div>
+  </a>
+
+  <div class="foot">새 수업 자료가 생기면 이 목록에 단원이 추가됩니다.</div>
+</div>
+
+<script>
+/* 단원이 늘면 이 배열에만 추가하면 됩니다 */
+const LESSONS=[
+  {id:"2회 · 問題3", topic:"送り迎え·과보호(육아) 지문", files:[
+    {label:"원문 (탭 → 읽기·뜻)", href:"독해지문_問題3.html"},
+    {label:"후리가나 (탭 → 뜻)", href:"독해지문_問題3_후리가나.html"}
+  ]}
+];
+document.getElementById("lessons").innerHTML=LESSONS.map(L=>`
+  <div class="lesson">
+    <div class="lh">${L.id}<small>${L.topic}</small></div>
+    <div class="linkrow">${L.files.map(f=>`<a class="chip" href="${f.href}">${f.label}</a>`).join("")}</div>
+  </div>`).join("");
+</script>
+</body>
+</html>

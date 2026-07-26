@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>독해 지문 (問題3) · 후리가나</title>
+<style>
+  html{font-size:24px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Yu Mincho','Hiragino Mincho ProN','Noto Serif JP',serif;
+    background:#f7f5ef;color:#1c1c1c;line-height:2.9;
+    padding:32px 18px;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:1.15rem;color:#555;font-weight:600;margin-bottom:6px;
+     font-family:'Malgun Gothic',sans-serif;line-height:1.4}
+  .sub{font-family:'Malgun Gothic',sans-serif;font-size:.72rem;color:#8a8a8a;
+       margin-bottom:10px;line-height:1.5}
+  ruby{ruby-align:center}
+  rt{font-size:.5em;color:#3a6ea5;font-weight:400;font-family:'Yu Gothic','Noto Sans JP',sans-serif}
+  .hint{font-family:'Malgun Gothic',sans-serif;font-size:.72rem;color:#8a8a8a;margin-bottom:14px;line-height:1.5}
+  .btnrow{margin-bottom:20px}
+  .tbtn{font-family:'Malgun Gothic',sans-serif;font-size:.72rem;cursor:pointer;
+        background:#eee7d4;border:1px solid #d3c9ac;color:#6a5a2a;padding:7px 14px;border-radius:999px}
+  .tbtn:hover{background:#e6dcc0}
+  #interactive{line-height:3.1}
+  #interactive p{margin-bottom:1.3em;text-align:justify}
+  .blank{color:#c0392b;font-weight:700}
+  .kw{cursor:pointer;position:relative;border-bottom:1px dotted #bcae90}
+  .kw.conj{border-bottom:1px dashed #c99a4b}
+  .kw:hover,.kw.open{background:#fff2c9;border-radius:3px}
+  .kw .mn{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    pointer-events:none;background:#2d3850;color:#fff;font-size:.58rem;
+    font-family:'Malgun Gothic',sans-serif;font-weight:600;padding:3px 9px;border-radius:7px;
+    white-space:nowrap;z-index:5;margin-top:3px;box-shadow:0 3px 10px rgba(0,0,0,.22)}
+  .kw .mn::before{content:"";position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+    border:5px solid transparent;border-bottom-color:#2d3850}
+  .kw.open .mn{display:block}
+  .note{margin-top:34px;padding:14px 16px;background:#efece3;border-left:3px solid #c9a24b;
+        font-family:'Malgun Gothic',sans-serif;font-size:.7rem;color:#6b6b6b;line-height:1.7;border-radius:6px}
+  @media print{
+    body{background:#fff}.note{background:#f2f2f2}
+    .kw .mn{display:block !important;position:static;transform:none;background:none;color:#3f6b45;
+      box-shadow:none;font-size:.55rem;margin:0}
+    .kw .mn::before{display:none}.btnrow{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>독해 지문 · 問題3 <span style="font-weight:400;color:#999">(후리가나 · 클릭형)</span></h1>
+  <div class="sub">JLPT 문법·어휘 문제집 78쪽 · 읽기 연습용 · <span class="blank">[19]~[22]</span>는 원래 빈칸</div>
+  <div class="hint">한자 위에 후리가나가 있고, 한자어·<b>접속어</b>를 <b>탭하면 뜻</b>이 떠요(다시 탭하면 사라짐). 노란 밑줄이 접속어입니다. 인쇄하면 모든 뜻이 함께 나옵니다.</div>
+  <div class="btnrow"><button class="tbtn" id="toggleAll">뜻 전부 보기 / 숨기기</button></div>
+  <div id="interactive"></div>
+
+  <div class="note">※ 마지막 문단은 원본 사진이 흐려 문장 순서가 실제 교재와 다소 다를 수 있음. 다음 수업 교재 실물로 대조해 수정 예정.</div>
+</div>
+
+<script>
+const SHOW_FURI=true;
+/* 토큰: 문자열=그대로 / [한자,읽기,뜻]=클릭단어 / [가나,null,뜻]=접속어·부사(클릭) / {b:"[19]"}=빈칸 */
+const B19={b:"[19]"},B20={b:"[20]"},B21={b:"[21]"},B22={b:"[22]"};
+const SENTENCES=[
+ [["私","わたし","나"],"の",["周","まわ","주위"],"りには、",["毎日","まいにち","매일"],"のように",["子供","こども","아이"],"の",["送","おく","보내다(배웅)"],"り",["迎","むか","맞이하다(마중)"],"えをしている",["友人","ゆうじん","친구"],"がいる。"],
+ [["学校","がっこう","학교"],"は",["もちろん",null,"물론(~은 말할 것도 없고)"],"、",["習","なら","배우다"],"い",["事","ごと","일 → 習い事: 예체능 학원"],"や",["塾","じゅく","학원"],"の",["送","おく","배웅"],"り",["迎","むか","마중"],"えをしているので、",["平日","へいじつ","평일"],"も",["週末","しゅうまつ","주말"],"も",B19,["会","あ","만나다"],"えない。"],
+ [["子供","こども","아이"],"の",["安全","あんぜん","안전"],"や",["将来","しょうらい","장래"],"を",["考","かんが","생각하다"],"える",["親","おや","부모"],"の",["気持","きも","마음"],"ちもよく",["分","わ","알다"],"かるが、",["毎日","まいにち","매일"],"の",["送迎","そうげい","배웅·마중"],"は、",["必要以上","ひつよういじょう","필요 이상"],"に",["子供","こども","아이"],"を",["甘","あま","응석부리게 하다"],"やかして",["過保護","かほご","과보호"],"になっているのではないかと",["思","おも","생각하다"],"う。"],
+ [["しかし",null,"그러나·하지만"],"、",["その",null,"그(그 친구)"],["友人","ゆうじん","친구"],"は",["自分","じぶん","자기"],"の",["子供","こども","아이"],"は",["学校","がっこう","학교"],"まで",["遠","とお","멀다"],"いし、",["塾","じゅく","학원"],"から",["家","いえ","집"],"に",["帰","かえ","돌아가다"],"る",["時間","じかん","시간"],"も",["遅","おそ","늦다"],"いので",["仕方","しかた","방법 → 仕方がない: 어쩔 수 없다"],"がないと",["言","い","말하다"],"っている。"],
+ [["もちろん",null,"물론"],["自分","じぶん","자기"],"も",["周","まわ","주위"],"りから「",["過保護","かほご","과보호"],"だな」と",["思","おも","생각하다 → 思われる: 여겨지다"],"われるのは",["知","し","알다"],"っているが、",["考","かんが","생각하다"],"え",["方","かた","방식 → 考え方: 사고방식"],"は",["人","ひと","사람"],["それぞれ",null,"저마다·각각"],"だし、",["何","なに","무엇 → 何より: 무엇보다"],"より",B20,"、",["周","まわ","주위"],"りの",["目","め","눈·시선"],"は",["気","き","마음 → 気にする: 신경 쓰다"],"にしたくないと",["言","い","말하다"],"っている。"],
+ [B21,"、",["通学時間","つうがくじかん","통학 시간"],"が",["減","へ","줄다"],"ったことで、その",["分","ぶん","몫(그만큼)"],["勉強","べんきょう","공부"],"に",["集中","しゅうちゅう","집중"],"できる",["時間","じかん","시간"],"も",["増","ふ","늘다"],"え、",["車","くるま","차"],"の",["中","なか","안"],"で",["休","やす","쉬다"],"んだり、",["睡眠","すいみん","수면·잠"],"できるので",["学習効率","がくしゅうこうりつ","학습 효율"],"が",["上","あ","오르다"],"がるとのことだ。"],
+ [["さらに",null,"게다가·더욱이"],"、",["子供","こども","아이"],"と",["一緒","いっしょ","함께"],"に",["過","す","보내다"],"ごせる",["時間","じかん","시간"],"が",["増","ふ","늘다"],"えたことで、",["学校","がっこう","학교"],"での",["生活","せいかつ","생활"],"や",["悩","なや","고민"],"みとかも",["聞","き","듣다"],"けるので、",["友人","ゆうじん","친구"],["にとって",null,"~에게 (있어서)"],["送迎時間","そうげいじかん","배웅·마중 시간"],"は、",["とても",null,"매우·아주"],["幸","しあわ","행복"],"せに",["感","かん","느끼다"],"じるそうだ。"],
+ [["ところが",null,"그런데(예상과 달리)"],"、",["子育","こそだ","육아"],"てというのは",["年齢","ねんれい","연령·나이"],"や",["発達","はったつ","발달"],"の",["状態","じょうたい","상태"],"に",["合","あ","맞추다"],"わせて",["適切","てきせつ","적절"],"な",["対応","たいおう","대응"],"が",["必要","ひつよう","필요"],"だ。"],
+ [["人","ひと","사람"],"は",["自分","じぶん","자기"],"の",["力","ちから","힘"],"で",["困難","こんなん","곤란·어려움"],"を",["乗","の","넘다"],"り",["越","こ","넘다 → 乗り越える: 극복하다"],"えることで、",["精神的","せいしんてき","정신적"],"に",["成長","せいちょう","성장"],"できる",["機会","きかい","기회"],"を",["得","え","얻다"],"られる。"],
+ [["親","おや","부모"],"が",["まわり",null,"주위"],"にも",["子供","こども","아이"],"に",["密着","みっちゃく","밀착"],"するのは、",["子供","こども","아이"],"が",["自立心","じりつしん","자립심"],"を",["育","そだ","기르다"],"てることや、",["深","ふか","깊다"],"い",["友人関係","ゆうじんかんけい","교우 관계"],"を",["築","きず","쌓다"],"くことに",["影響","えいきょう","영향"],"を",["与","あた","주다"],"えるかもしれない。"],
+ [["自力","じりき","자력·스스로"],"で",["通学","つうがく","통학"],"することで、",["子供","こども","아이"],"たち",["同士","どうし","끼리"],"で",["相談","そうだん","의논·상담"],"したり、",["通","かよ","다니다"],"ったことのない",["道","みち","길"],"を",["歩","ある","걷다"],"いたりするのも",["なかなか",null,"좀처럼(뒤에 부정)"],B22,"。"]
+];
+
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function tokHtml(tok){
+  if(typeof tok==="string")return esc(tok);
+  if(tok.b)return `<span class="blank">${tok.b}</span>`;
+  const [k,r,m]=tok;
+  const inner=(SHOW_FURI && r)?`<ruby>${esc(k)}<rt>${esc(r)}</rt></ruby>`:esc(k);
+  const cls=(r===null)?"kw conj":"kw";
+  return `<span class="${cls}">${inner}<span class="mn">${esc(m)}</span></span>`;
+}
+function render(){
+  const box=document.getElementById("interactive");
+  const paras=[[0,1,2],[3,4,5],[6],[7,8,9,10]];
+  box.innerHTML=paras.map(idxs=>`<p>${idxs.map(i=>SENTENCES[i].map(tokHtml).join("")).join("")}</p>`).join("");
+}
+render();
+document.getElementById("interactive").addEventListener("click",e=>{
+  const el=e.target.closest(".kw"); if(!el)return; el.classList.toggle("open");
+});
+document.getElementById("toggleAll").addEventListener("click",()=>{
+  const kws=document.querySelectorAll("#interactive .kw");
+  const anyClosed=[...kws].some(k=>!k.classList.contains("open"));
+  kws.forEach(k=>k.classList.toggle("open",anyClosed));
+});
+</script>
+</body>
+</html>
