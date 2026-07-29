@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>독해 지문 2회 (問題4~7) · 후리가나</title>
+<style>
+  html{font-size:24px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Yu Mincho','Hiragino Mincho ProN','Noto Serif JP',serif;
+    background:#f7f5ef;color:#1c1c1c;line-height:2.9;padding:32px 18px}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:1.15rem;color:#555;font-weight:600;margin-bottom:6px;font-family:'Malgun Gothic',sans-serif}
+  .sub{font-family:'Malgun Gothic',sans-serif;font-size:.72rem;color:#8a8a8a;margin-bottom:10px;line-height:1.5}
+  .hint{font-family:'Malgun Gothic',sans-serif;font-size:.72rem;color:#8a8a8a;margin-bottom:14px;line-height:1.5}
+  .btnrow{margin-bottom:20px;display:flex;gap:8px;flex-wrap:wrap}
+  .tbtn{font-family:'Malgun Gothic',sans-serif;font-size:.72rem;cursor:pointer;
+    background:#eee7d4;border:1px solid #d3c9ac;color:#6a5a2a;padding:7px 14px;border-radius:999px}
+  .tbtn:hover{background:#e6dcc0}
+  .lesson{margin-bottom:38px}
+  .lh{font-family:'Malgun Gothic',sans-serif;font-size:.9rem;font-weight:700;color:#7a6a3a;
+      border-bottom:2px solid #d9d3c4;padding-bottom:6px;margin-bottom:14px;line-height:1.5}
+  .lh small{color:#9a9a9a;font-weight:400;margin-left:8px}
+  p.jp{margin-bottom:.7em;text-align:justify}
+  .ko{font-family:'Malgun Gothic',sans-serif;font-size:.78rem;color:#3f6b45;line-height:1.65;
+      padding-left:12px;border-left:3px solid #b7cdb7;margin-bottom:1.4em;display:none}
+  .ko.show{display:block}
+  .kw{cursor:pointer;position:relative;border-bottom:1px dotted #bcae90}
+  .kw.conj{border-bottom:1px dashed #c99a4b}
+  .kw:hover,.kw.open{background:#fff2c9;border-radius:3px}
+  .kw .mn{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    pointer-events:none;background:#2d3850;color:#fff;font-size:.58rem;
+    font-family:'Malgun Gothic',sans-serif;font-weight:600;padding:3px 9px;border-radius:7px;
+    white-space:nowrap;z-index:5;margin-top:3px;box-shadow:0 3px 10px rgba(0,0,0,.22)}
+  .kw .mn::before{content:"";position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+    border:5px solid transparent;border-bottom-color:#2d3850}
+  .kw.open .mn{display:block}
+  .foot{margin-top:30px;color:#9a9a9a;font-size:.68rem;font-family:'Malgun Gothic',sans-serif;text-align:center}
+  @media print{
+    body{background:#fff}
+    .kw .mn{display:block !important;position:static;transform:none;background:none;color:#3f6b45;
+      box-shadow:none;font-size:.55rem;margin:0}
+    .kw .mn::before{display:none}.btnrow{display:none}.ko{display:block}
+  }
+  ruby{ruby-align:center}
+  rt{font-size:.5em;color:#3a6ea5;font-weight:400;font-family:'Yu Gothic','Noto Sans JP',sans-serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>독해 지문 2회 · 問題4~7 <span style="font-weight:400;color:#999">(후리가나)</span></h1>
+  <div class="sub">JLPT 문제집 83~91쪽 · 읽기 연습용 (한자 위 후리가나)</div>
+  <div class="hint">한자 위에 후리가나가 있고, 한자어·<b>접속어</b>를 <b>탭하면 뜻</b>이 떠요(다시 탭하면 사라짐). 노란 밑줄이 접속어입니다.</div>
+  <div class="btnrow">
+    <button class="tbtn" id="toggleAll">뜻 전부 보기 / 숨기기</button>
+    <button class="tbtn" id="toggleKo">해석 보기 / 숨기기</button>
+  </div>
+  <div id="out"></div>
+  <div class="foot">※ 원본 사진이 흐린 일부 문장은 표기가 교재와 조금 다를 수 있음 · <a href="일본어_학습_홈.html">학습 홈</a></div>
+</div>
+
+<script src="data_2회_問題4-7.js"></script>
+<script>
+const SHOW_FURI=true;
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const KEYS=Object.keys(DICT).sort((a,b)=>b.length-a.length);
+const MAXLEN=KEYS.length?KEYS[0].length:1;
+function markup(s){
+  let out="",i=0;
+  while(i<s.length){
+    let hit=null;
+    for(let L=Math.min(MAXLEN,s.length-i);L>=1;L--){
+      const sub=s.substr(i,L);
+      if(Object.prototype.hasOwnProperty.call(DICT,sub)){hit=[sub,DICT[sub]];break;}
+    }
+    if(hit){
+      const [k,[r,m]]=hit;
+      const inner=(SHOW_FURI&&r)?`<ruby>${esc(k)}<rt>${esc(r)}</rt></ruby>`:esc(k);
+      const mn=(!SHOW_FURI&&r)?esc(r)+" · "+esc(m):esc(m);
+      out+=`<span class="kw${r===null?' conj':''}">${inner}<span class="mn">${mn}</span></span>`;
+      i+=k.length;
+    }else{ out+=esc(s[i]); i++; }
+  }
+  return out;
+}
+document.getElementById("out").innerHTML=TEXTS.map(t=>
+  `<div class="lesson"><div class="lh">${esc(t.id)}<small>${esc(t.title)}</small></div>`+
+  t.paras.map(p=>`<p class="jp">${markup(p[0])}</p><div class="ko">${esc(p[1])}</div>`).join("")+
+  `</div>`).join("");
+document.getElementById("out").addEventListener("click",e=>{
+  const el=e.target.closest(".kw"); if(!el)return; el.classList.toggle("open");
+});
+document.getElementById("toggleAll").onclick=()=>{
+  const kws=document.querySelectorAll("#out .kw");
+  const any=[...kws].some(k=>!k.classList.contains("open"));
+  kws.forEach(k=>k.classList.toggle("open",any));
+};
+document.getElementById("toggleKo").onclick=()=>{
+  const ks=document.querySelectorAll("#out .ko");
+  const any=[...ks].some(k=>!k.classList.contains("show"));
+  ks.forEach(k=>k.classList.toggle("show",any));
+};
+</script>
+</body>
+</html>
