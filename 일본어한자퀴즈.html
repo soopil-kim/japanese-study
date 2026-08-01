@@ -87,11 +87,12 @@
   .cf-line{margin-bottom:8px}
   .cf-line:last-child{margin-bottom:0}
   .cf-words{display:flex;flex-direction:column;gap:5px;margin-top:6px}
-  .cf-w{display:flex;align-items:baseline;gap:10px;background:#fff;border:1px solid #ecd9c5;
-    border-radius:8px;padding:5px 10px}
+  .cf-w{background:#fff;border:1px solid #ecd9c5;border-radius:8px;padding:6px 10px}
+  .cf-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
   .cf-k{font-size:1.05rem;font-weight:700;min-width:2.8em}
   .cf-y{font-size:.72rem;color:#3a6ea5;min-width:5em}
   .cf-m{font-size:.78rem;color:#7a4a2a}
+  .cf-h{font-size:.68rem;color:#2d6a4a;margin-top:3px;line-height:1.5}
   .explain .confuse{margin-top:10px}
   .nav{display:flex;gap:10px;margin-top:14px}
   .navbtn{flex:1}
@@ -779,13 +780,45 @@ const CONFUSE={
  "気温":{c:"温(따뜻할 온) ↔ 湯(끓일 탕): 氵(물) 공통 — 온도는 温, 뜨거운 물은 湯.",
    w:[["体温","たいおん","체온"],["温泉","おんせん","온천"]]}
 };
+/* 헷갈리는 단어에 각 한자의 훈음을 자동으로 붙이기 위한 보충 사전
+   (WORDS 안에 이미 있는 글자는 거기서 자동으로 가져오고, 없는 글자만 여기 둔다) */
+const EXTRA_HUN={
+ "度":"법도 도","賞":"상줄 상","製":"지을 제","停":"머무를 정","孝":"효도 효",
+ "行":"다닐 행","航":"배 항","態":"모습 태","次":"버금 차","第":"차례 제",
+ "金":"쇠 금","修":"닦을 수","刻":"새길 각","刺":"찌를 자","傑":"뛰어날 걸",
+ "義":"옳을 의","務":"힘쓸 무","私":"사사 사","児":"아이 아","童":"아이 동",
+ "始":"비로소 시","志":"뜻 지","程":"한도 정","剰":"남을 잉","類":"무리 류",
+ "庭":"뜰 정","親":"친할 친","無":"없을 무","複":"겹칠 복","涯":"물가 애",
+ "傷":"다칠 상","僚":"동료 료","女":"여자 녀","住":"살 주","道":"길 도",
+ "常":"항상 상","火":"불 화","被":"입을 피","政":"정사 정","音":"소리 음",
+ "冬":"겨울 동","医":"의원 의","者":"놈 자","昆":"맏 곤","根":"뿌리 근",
+ "席":"자리 석","町":"밭두둑 정","口":"입 구","争":"다툴 쟁","週":"주일 주",
+ "院":"집 원","症":"증세 증","天":"하늘 천","契":"맺을 계","明":"밝을 명",
+ "紀":"벼리 기","限":"한할 한","上":"위 상","歩":"걸음 보","表":"겉 표",
+ "見":"볼 견","局":"판 국","不":"아닐 불","下":"아래 하","課":"공부할 과",
+ "録":"기록할 록","帳":"장막 장","略":"간략할 략","主":"주인 주","光":"빛 광",
+ "件":"물건 건","用":"쓸 용","安":"편안 안","達":"통달할 달","物":"물건 물",
+ "格":"격식 격","議":"의논할 의","章":"글 장","邪":"간사할 사","子":"아들 자",
+ "重":"무거울 중","続":"이을 속","保":"지킬 보","成":"이룰 성","活":"살 활",
+ "転":"구를 전","二":"두 이","昼":"낮 주","寝":"잘 침","球":"공 구",
+ "消":"사라질 소","有":"있을 유","率":"비율 률","能":"능할 능","自":"스스로 자",
+ "己":"몸 기","護":"도울 호","知":"알 지","法":"법 법","合":"합할 합",
+ "考":"생각할 고","追":"쫓을 추","想":"생각 상","際":"즈음 제","泉":"샘 천"
+};
+/* WORDS에서 훈음 자동 수집 (아래 CHARMAP 정의 전에도 쓰이므로 자체 계산) */
+const HUNMAP=(()=>{const o={};WORDS.forEach(w=>w.c.forEach(c=>{if(!o[c[0]])o[c[0]]=c[1];}));
+  Object.keys(EXTRA_HUN).forEach(k=>{if(!o[k])o[k]=EXTRA_HUN[k];});return o;})();
+function hunLine(word){
+  const parts=[...word].filter(ch=>/[一-龯]/.test(ch)).map(ch=>HUNMAP[ch]?`${ch} ${HUNMAP[ch]}`:null).filter(Boolean);
+  return parts.length?`<div class="cf-h">${parts.join(' · ')}</div>`:'';
+}
 function confuseHtml(w,blur){
   const e=CONFUSE[w.w]; if(!e)return '';
   let h='';
   if(e.c) h+=`<div class="cf-line">🔀 <b>헷갈리는 글자</b> · ${e.c}</div>`;
   if(e.w&&e.w.length){
     h+=`<div class="cf-line">🔁 <b>헷갈리는 단어</b><div class="cf-words">`+
-      e.w.map(x=>`<div class="cf-w"><span class="cf-k">${x[0]}</span><span class="cf-y">${x[1]}</span><span class="cf-m">${x[2]}</span></div>`).join('')+
+      e.w.map(x=>`<div class="cf-w"><div class="cf-top"><span class="cf-k">${x[0]}</span><span class="cf-y">${x[1]}</span><span class="cf-m">${x[2]}</span></div>${hunLine(x[0])}</div>`).join('')+
       `</div></div>`;
   }
   return h?`<div class="confuse${blur||''}">${h}</div>`:'';
