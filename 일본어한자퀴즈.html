@@ -167,6 +167,12 @@
     color:var(--text);padding:8px 14px;border-radius:999px}
   .tbtn2:hover{border-color:var(--accent)}
   .srs-syncnote{font-size:.66rem;color:var(--sub);margin-top:8px;line-height:1.6}
+  .srs-hint{font-size:.68rem;color:var(--gold);margin-top:12px;text-align:center}
+  /* 오늘 학습에서 헷갈림 정보를 더 크게 */
+  #srsReveal .confuse{font-size:.86rem;padding:13px 15px}
+  #srsReveal .cf-k{font-size:1.15rem}
+  #srsReveal .cf-y{font-size:.76rem}
+  #srsReveal .cf-m{font-size:.82rem}
 </style>
 </head>
 <body>
@@ -214,6 +220,7 @@
         </div>
         <div class="next-wrap" id="srsRevealWrap"><button class="btn" id="srsRevealBtn">정답 보기 →</button></div>
         <div class="explain" id="srsReveal"></div>
+        <div class="srs-hint" id="srsGradeHint" style="display:none">아래 <b>헷갈리는 글자·단어</b>까지 확인한 뒤 채점하세요</div>
         <div class="srs-grade" id="srsGrade" style="display:none">
           <button class="btn grade again" data-g="again">몰랐어<small>+1일</small></button>
           <button class="btn grade hard" data-g="hard">애매<small>곧 다시</small></button>
@@ -1114,6 +1121,7 @@ function srsShow(){
   document.getElementById('srsWord').textContent=w.w;
   const ex=document.getElementById('srsReveal');ex.classList.remove('show');ex.innerHTML='';
   document.getElementById('srsGrade').style.display='none';
+  document.getElementById('srsGradeHint').style.display='none';
   document.getElementById('srsRevealWrap').style.display='block';
   const wrap=document.getElementById('srsWriteWrap');
   const showW=document.getElementById('srsWrite').checked;
@@ -1131,6 +1139,7 @@ function srsRevealFn(){
   ex.classList.add('show');
   document.getElementById('srsRevealWrap').style.display='none';
   document.getElementById('srsGrade').style.display='grid';
+  document.getElementById('srsGradeHint').style.display=CONFUSE[w.w]?'block':'none';
 }
 function srsGradeFn(g){
   const s=srsLoad(),t=dayNo(),w=srsS.cur.w;
