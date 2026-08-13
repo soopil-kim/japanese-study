@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일본어 단어장 — 접속사·부사·문법표현</title>
+<style>
+  :root{
+    --bg:#0f1420; --card:#1a2130; --card2:#232c3f; --line:#2d3850;
+    --text:#e8edf5; --sub:#9aa7bd; --accent:#3fb98a; --accent2:#2f8fbf;
+    --ok:#33d69f; --ng:#ff5d6c; --gold:#ffc64b;
+  }
+  html{font-size:28px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;
+    background:linear-gradient(160deg,#0f1420,#101d1b);color:var(--text);min-height:100vh;padding:16px;line-height:1.55}
+  .wrap{max-width:900px;margin:0 auto}
+  header{text-align:center;padding:18px 0 10px}
+  header h1{font-size:1.4rem;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{color:var(--sub);font-size:.8rem;margin-top:4px}
+  header a{color:var(--sub);font-size:.72rem}
+
+  .tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap;justify-content:center}
+  .tab{padding:9px 16px;border-radius:999px;background:var(--card);color:var(--sub);
+    border:1px solid var(--line);cursor:pointer;font-size:.85rem;transition:.15s}
+  .tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .25s}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .btn{padding:12px 22px;border:none;border-radius:12px;font-size:.9rem;font-weight:600;
+    cursor:pointer;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;transition:.15s}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line)}
+  .setup{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center}
+  .setup h3{margin-bottom:12px;font-size:.95rem}
+  .desc{color:var(--sub);font-size:.78rem;line-height:1.7;margin-bottom:14px}
+  .optrow{margin-bottom:14px}
+  .qopt{display:flex;align-items:center;gap:10px;background:var(--card2);padding:12px 14px;
+    border-radius:10px;cursor:pointer;text-align:left;border:1px solid transparent;font-size:.85rem;margin-bottom:8px}
+  .qopt input{width:20px;height:20px;accent-color:var(--accent)}
+
+  /* 분류 필터 */
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .chip{padding:6px 13px;border-radius:999px;background:var(--card);color:var(--sub);
+    border:1px solid var(--line);cursor:pointer;font-size:.72rem}
+  .chip.on{background:var(--accent);color:#08201a;border-color:transparent;font-weight:700}
+  .searchbar{width:100%;padding:11px 14px;border-radius:12px;background:var(--card);
+    border:1px solid var(--line);color:var(--text);font-size:.85rem;margin-bottom:10px}
+  .searchbar::placeholder{color:var(--sub)}
+  .flash-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.78rem;color:var(--sub)}
+  .hide-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+  .hide-toggle input{width:16px;height:16px;accent-color:var(--accent)}
+
+  /* 단어 카드 */
+  .wordcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+  .wordcard .top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .wordcard .jw{font-size:1.6rem;font-weight:700;letter-spacing:1px;
+    font-family:'Yu Gothic','Noto Sans JP','Malgun Gothic',sans-serif}
+  .wordcard .yomi{color:var(--accent2);font-size:.9rem}
+  .wordcard .cat{font-size:.66rem;padding:3px 10px;border-radius:999px;background:var(--card2);
+    color:var(--sub);border:1px solid var(--line);margin-left:auto}
+  .wordcard .mean{color:var(--gold);font-size:1rem;font-weight:600;margin-top:8px}
+  .wordcard .note{margin-top:9px;font-size:.8rem;color:var(--text);opacity:.94;line-height:1.6;
+    border-left:2px solid var(--accent);padding-left:10px}
+  .wordcard .note b{color:var(--gold)}
+  .ex{margin-top:11px;background:var(--card2);border-radius:10px;padding:11px 13px}
+  .ex .ej{font-size:.92rem;line-height:1.8;font-family:'Yu Mincho','Noto Serif JP',serif}
+  .ex .ek{font-size:.76rem;color:var(--sub);margin-top:5px;line-height:1.5}
+  .hidden-blur{filter:blur(8px);opacity:.5;transition:.15s}
+  .nav{display:flex;gap:10px;margin-top:14px}
+  .nav .btn{flex:1}
+  .nav-hint{text-align:center;color:var(--sub);font-size:.68rem;margin-top:10px}
+
+  /* SRS */
+  .srs-dash{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
+  .srs-dash div{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:9px 14px;font-size:.74rem;color:var(--sub)}
+  .srs-dash b{color:var(--text);font-size:.9rem}
+  .qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:.8rem;color:var(--sub)}
+  .bar{height:6px;background:var(--card);border-radius:999px;overflow:hidden;margin-bottom:18px}
+  .bar>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 18px;text-align:center}
+  .qlabel{color:var(--sub);font-size:.78rem;margin-bottom:10px}
+  .qmain{font-size:1.9rem;font-weight:700;margin-bottom:8px;
+    font-family:'Yu Gothic','Noto Sans JP','Malgun Gothic',sans-serif}
+  .qsub{color:var(--accent2);margin-bottom:18px;min-height:1.2em;font-size:.88rem}
+  .choices{display:grid;gap:10px}
+  .choice{padding:14px 16px;border-radius:12px;background:var(--card2);border:1px solid var(--line);
+    cursor:pointer;text-align:left;font-size:.88rem;transition:.12s}
+  .choice:hover{border-color:var(--accent)}
+  .choice.correct{background:rgba(51,214,159,.18);border-color:var(--ok)}
+  .choice.wrong{background:rgba(255,93,108,.16);border-color:var(--ng)}
+  .choice.disabled{pointer-events:none;opacity:.75}
+  .reveal{margin-top:16px;text-align:left;background:var(--card2);border-radius:12px;padding:14px 16px;display:none}
+  .reveal.show{display:block}
+  .reveal .rm{color:var(--gold);font-size:1rem;font-weight:700}
+  .reveal .ry{color:var(--accent2);font-size:.82rem;margin-top:2px}
+  .reveal .rn{margin-top:8px;font-size:.8rem;line-height:1.6;color:var(--text);opacity:.94}
+  .reveal .rn b{color:var(--gold)}
+  .next-wrap{margin-top:16px}
+  .srs-grade{display:flex;gap:8px;margin-top:16px}
+  .srs-grade .btn{flex:1;font-size:.8rem;padding:12px 6px;display:flex;flex-direction:column;gap:2px;align-items:center}
+  .srs-grade .btn small{font-size:.6rem;opacity:.85;font-weight:400}
+  .srs-grade .again{background:linear-gradient(90deg,#c0455a,#8d3346)}
+  .srs-grade .hard{background:linear-gradient(90deg,#c08a2a,#a1701f)}
+  .srs-grade .good{background:linear-gradient(90deg,#2f9e6e,#227a55)}
+  .srs-sync{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .tbtn2{padding:8px 14px;border-radius:999px;background:var(--card2);color:var(--text);
+    border:1px solid var(--line);cursor:pointer;font-size:.72rem}
+  .srs-syncnote{color:var(--sub);font-size:.66rem;margin-top:8px;line-height:1.6}
+  .result{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 18px;text-align:center}
+  .result h3{font-size:1.1rem;margin-bottom:10px}
+  .result .sc{font-size:2rem;font-weight:700;color:var(--gold);margin-bottom:10px}
+  .wronglist{text-align:left;margin:14px 0;display:flex;flex-direction:column;gap:8px}
+  .wrongitem{background:var(--card2);border-radius:10px;padding:10px 13px;font-size:.8rem}
+  .wrongitem b{font-size:1rem;font-family:'Yu Gothic','Noto Sans JP',sans-serif}
+  .footer{text-align:center;color:var(--sub);font-size:.68rem;margin:26px 0 10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>일본어 단어장</h1>
+    <p>접속사 · 부사 · 의성의태어 · 문법표현 · 경어 · 가타카나 — <span id="totalN"></span>단어</p>
+    <p><a href="일본어_학습_홈.html">← 학습 홈</a> · 한자어는 <a href="일본어한자퀴즈.html">한자 마스터 덱</a>에서</p>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="srs">🔁 오늘 학습</div>
+    <div class="tab" data-tab="study">📖 단어 카드</div>
+    <div class="tab" data-tab="quiz">✏️ 퀴즈</div>
+  </div>
+
+  <!-- 오늘 학습 -->
+  <div class="panel active" id="srs">
+    <div class="srs-dash" id="srsDash"></div>
+    <div id="srsStart" class="setup">
+      <h3>오늘의 간격 반복 학습</h3>
+      <p class="desc">단어를 보고 <b>뜻과 쓰임을 먼저 떠올린 뒤</b> 정답을 확인하고 스스로 채점해요.
+        채점에 따라 다음 복습 날짜가 자동으로 잡힙니다(1·3·7·14·30일).</p>
+      <div class="optrow" id="srsCats"></div>
+      <button class="btn" id="srsStartBtn">학습 시작</button>
+      <button class="btn ghost" id="srsResetBtn">진도 초기화</button>
+      <div class="srs-sync">
+        <button class="tbtn2" id="srsExport">⬆ 진도 내보내기</button>
+        <button class="tbtn2" id="srsImportBtn">⬇ 진도 불러오기</button>
+        <input type="file" id="srsFile" accept="application/json,.json" style="display:none">
+      </div>
+      <div class="srs-syncnote">PC·태블릿 진도 맞추기 → 한 기기에서 <b>내보내기</b>로 파일을 OneDrive에 저장하고,
+        다른 기기에서 <b>불러오기</b>로 그 파일을 고르면 더 최근 기록이 자동 병합돼요.</div>
+    </div>
+
+    <div id="srsPlay" style="display:none">
+      <div class="qhead"><span id="srsCount"></span><span id="srsRemain"></span></div>
+      <div class="bar"><div id="srsBar" style="width:0%"></div></div>
+      <div class="qcard">
+        <div class="qlabel">뜻과 쓰임을 떠올려 보세요</div>
+        <div class="qmain" id="srsWord"></div>
+        <div class="next-wrap" id="srsRevealWrap"><button class="btn" id="srsRevealBtn">정답 보기 →</button></div>
+        <div class="reveal" id="srsReveal"></div>
+        <div class="srs-grade" id="srsGrade" style="display:none">
+          <button class="btn grade again" data-g="again">몰랐어<small>+1일</small></button>
+          <button class="btn grade hard" data-g="hard">애매<small>곧 다시</small></button>
+          <button class="btn grade good" data-g="good">알았어<small>간격 ↑</small></button>
+        </div>
+      </div>
+    </div>
+    <div id="srsDone" style="display:none"></div>
+  </div>
+
+  <!-- 단어 카드 -->
+  <div class="panel" id="study">
+    <div class="filters" id="filters"></div>
+    <input class="searchbar" id="search" placeholder="🔍 단어·뜻·설명으로 검색 (예: 오히려, ながら, 역접)">
+    <div class="flash-head">
+      <span id="flashCount"></span>
+      <label class="hide-toggle"><input type="checkbox" id="hideToggle"> 뜻 가리고 보기</label>
+    </div>
+    <div id="cardlist"></div>
+    <div class="nav">
+      <button class="btn ghost" id="prevBtn">← 이전</button>
+      <button class="btn" id="nextCardBtn">다음 →</button>
+    </div>
+    <p class="nav-hint">← → 방향키로도 넘길 수 있어요 · 가리기 모드에선 카드를 누르면 공개돼요</p>
+  </div>
+
+  <!-- 퀴즈 -->
+  <div class="panel" id="quiz">
+    <div id="quizSetup" class="setup">
+      <h3>퀴즈 유형을 고르세요</h3>
+      <div>
+        <label class="qopt"><input type="checkbox" value="m2w" checked> 뜻 → 단어 맞히기</label>
+        <label class="qopt"><input type="checkbox" value="w2m" checked> 단어 → 뜻 맞히기</label>
+        <label class="qopt"><input type="checkbox" value="cloze" checked> 예문 빈칸 채우기</label>
+      </div>
+      <button class="btn" id="startBtn">퀴즈 시작 (20문제)</button>
+    </div>
+    <div id="quizPlay" style="display:none">
+      <div class="qhead"><span id="qcount"></span><span id="qscore"></span></div>
+      <div class="bar"><div id="qbar" style="width:0%"></div></div>
+      <div class="qcard">
+        <div class="qlabel" id="qlabel"></div>
+        <div class="qmain" id="qmain"></div>
+        <div class="qsub" id="qsub"></div>
+        <div class="choices" id="choices"></div>
+        <div class="reveal" id="qreveal"></div>
+        <div class="next-wrap" id="nextWrap" style="display:none"><button class="btn" id="nextBtn">다음 →</button></div>
+      </div>
+    </div>
+    <div id="quizResult" style="display:none"></div>
+  </div>
+
+  <div class="footer">스스로 만든 학습 도구 · 브라우저에서 열면 바로 작동해요</div>
+</div>
+
+<script src="data_단어장.js"></script>
+<script>
+const CATS=["접속","부사","의태","문법","경어","가타카나","동사","형용","용법"];
+const CATNAME={접속:"접속사",부사:"부사",의태:"의성·의태어",문법:"문법표현",경어:"경어",
+  가타카나:"가타카나",동사:"동사",형용:"형용사",용법:"용법 주의"};
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+/* 설명(n)에는 <b> 강조만 허용 */
+const noteHtml=s=>esc(s).replace(/&lt;b&gt;/g,"<b>").replace(/&lt;\/b&gt;/g,"</b>");
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+document.getElementById("totalN").textContent=VOCAB.length;
+
+/* ---------- 탭 ---------- */
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  document.getElementById(t.dataset.tab).classList.add("active");
+});
+
+/* ---------- 카드 렌더 ---------- */
+function cardHtml(v,blur){
+  const b=blur?" hidden-blur":"";
+  return `<div class="wordcard">
+    <div class="top">
+      <span class="jw">${esc(v.w)}</span>
+      ${v.y?`<span class="yomi">${esc(v.y)}</span>`:""}
+      <span class="cat">${esc(CATNAME[v.t]||v.t)}</span>
+    </div>
+    <div class="mean${b}">${esc(v.m)}</div>
+    ${v.n?`<div class="note${b}">${noteHtml(v.n)}</div>`:""}
+    ${v.e?`<div class="ex"><div class="ej">${esc(v.e[0])}</div><div class="ek${b}">${esc(v.e[1])}</div></div>`:""}
+  </div>`;
+}
+
+/* ---------- 단어 카드 탭 ---------- */
+let activeCats=new Set(CATS), flashList=VOCAB.slice(), flashIdx=0, flashRevealed=false;
+const fbox=document.getElementById("filters");
+fbox.innerHTML=`<span class="chip on" data-c="ALL">전체</span>`+
+  CATS.map(c=>`<span class="chip on" data-c="${c}">${CATNAME[c]}</span>`).join("");
+fbox.onclick=e=>{
+  const chip=e.target.closest(".chip"); if(!chip)return;
+  if(chip.dataset.c==="ALL"){
+    const allOn=activeCats.size===CATS.length;
+    activeCats=allOn?new Set():new Set(CATS);
+  }else{
+    const c=chip.dataset.c;
+    activeCats.has(c)?activeCats.delete(c):activeCats.add(c);
+  }
+  fbox.querySelectorAll(".chip").forEach(ch=>{
+    ch.classList.toggle("on", ch.dataset.c==="ALL" ? activeCats.size===CATS.length : activeCats.has(ch.dataset.c));
+  });
+  applyFilter();
+};
+function applyFilter(){
+  const q=document.getElementById("search").value.trim().toLowerCase();
+  flashList=VOCAB.filter(v=>activeCats.has(v.t) &&
+    (!q || (v.w+(v.y||"")+v.m+(v.n||"")+(v.e?v.e.join(""):"")).toLowerCase().includes(q)));
+  flashIdx=0; flashRevealed=false; renderCard();
+}
+document.getElementById("search").oninput=applyFilter;
+document.getElementById("hideToggle").onchange=()=>{flashRevealed=false;renderCard();};
+function renderCard(){
+  const box=document.getElementById("cardlist");
+  const hide=document.getElementById("hideToggle").checked && !flashRevealed;
+  if(!flashList.length){box.innerHTML=`<div class="wordcard">조건에 맞는 단어가 없어요.</div>`;
+    document.getElementById("flashCount").textContent="0 / 0";return;}
+  if(flashIdx>=flashList.length)flashIdx=0;
+  box.innerHTML=cardHtml(flashList[flashIdx],hide);
+  box.firstElementChild.onclick=()=>{ if(document.getElementById("hideToggle").checked){flashRevealed=true;renderCard();} };
+  document.getElementById("flashCount").textContent=`${flashIdx+1} / ${flashList.length}`;
+}
+function goCard(step){ if(!flashList.length)return; flashIdx=(flashIdx+step+flashList.length)%flashList.length; flashRevealed=false; renderCard(); }
+document.getElementById("nextCardBtn").onclick=()=>goCard(1);
+document.getElementById("prevBtn").onclick=()=>goCard(-1);
+document.addEventListener("keydown",e=>{
+  if(!document.getElementById("study").classList.contains("active"))return;
+  if(e.key==="ArrowRight")goCard(1); if(e.key==="ArrowLeft")goCard(-1);
+});
+applyFilter();
+
+/* ---------- 퀴즈 ---------- */
+let quiz={list:[],i:0,score:0,wrong:[]};
+document.getElementById("startBtn").onclick=()=>{
+  const types=[...document.querySelectorAll("#quizSetup input:checked")].map(c=>c.value);
+  if(!types.length){alert("퀴즈 유형을 하나 이상 고르세요");return;}
+  const pool=[];
+  /* 빈칸 문제는 예문에 표기가 '그대로' 나오는 단어만 (활용형은 빈칸이 안 만들어짐) */
+  const clozable=v=>v.e&&v.e[0].includes(v.w);
+  VOCAB.forEach(v=>types.forEach(t=>{ if(t!=="cloze"||clozable(v)) pool.push({v,t}); }));
+  quiz={list:shuffle(pool).slice(0,20),i:0,score:0,wrong:[]};
+  document.getElementById("quizSetup").style.display="none";
+  document.getElementById("quizResult").style.display="none";
+  document.getElementById("quizPlay").style.display="block";
+  showQ();
+};
+function buildOpts(answer,all){
+  const opts=[answer];
+  const rest=shuffle(all.filter(x=>x!==answer));
+  for(const r of rest){ if(opts.length>=4)break; if(!opts.includes(r))opts.push(r); }
+  return shuffle(opts);
+}
+function showQ(){
+  const q=quiz.list[quiz.i], v=q.v;
+  document.getElementById("qcount").textContent=`${quiz.i+1} / ${quiz.list.length}`;
+  document.getElementById("qscore").textContent=`정답 ${quiz.score}`;
+  document.getElementById("qbar").style.width=(quiz.i/quiz.list.length*100)+"%";
+  document.getElementById("qreveal").classList.remove("show");
+  document.getElementById("nextWrap").style.display="none";
+  const same=VOCAB.filter(x=>x.t===v.t);
+  const pool=same.length>=6?same:VOCAB;
+  let label,main,sub,answer,options;
+  if(q.t==="w2m"){
+    label="이 단어의 뜻은?"; main=v.w; sub=v.y||"";
+    answer=v.m; options=buildOpts(answer,pool.map(x=>x.m));
+  }else if(q.t==="m2w"){
+    label="이 뜻에 맞는 단어는?"; main=v.m; sub=CATNAME[v.t];
+    answer=v.w; options=buildOpts(answer,pool.map(x=>x.w));
+  }else{
+    label="빈칸에 들어갈 말은?";
+    main=v.e[0].replace(v.w,"（　　　）"); sub=v.e[1];
+    answer=v.w; options=buildOpts(answer,pool.map(x=>x.w));
+  }
+  document.getElementById("qlabel").textContent=label;
+  document.getElementById("qmain").textContent=main;
+  document.getElementById("qmain").style.fontSize=(q.t==="cloze"||main.length>12)?"1.05rem":"1.9rem";
+  document.getElementById("qsub").textContent=sub;
+  const box=document.getElementById("choices");
+  box.innerHTML=options.map(o=>`<div class="choice">${esc(o)}</div>`).join("");
+  [...box.children].forEach((el,k)=>el.onclick=()=>pick(el,options[k],answer,v));
+}
+function pick(el,opt,answer,v){
+  const box=document.getElementById("choices");
+  [...box.children].forEach(c=>{
+    c.classList.add("disabled");
+    if(c.textContent===answer)c.classList.add("correct");
+  });
+  if(opt===answer)quiz.score++; else {el.classList.add("wrong");quiz.wrong.push(v);}
+  document.getElementById("qscore").textContent=`정답 ${quiz.score}`;
+  document.getElementById("qreveal").innerHTML=revealHtml(v);
+  document.getElementById("qreveal").classList.add("show");
+  document.getElementById("nextWrap").style.display="block";
+}
+function revealHtml(v){
+  return `<div class="rm">${esc(v.w)} — ${esc(v.m)}</div>
+    ${v.y?`<div class="ry">${esc(v.y)}</div>`:""}
+    ${v.n?`<div class="rn">${noteHtml(v.n)}</div>`:""}
+    ${v.e?`<div class="ex"><div class="ej">${esc(v.e[0])}</div><div class="ek">${esc(v.e[1])}</div></div>`:""}`;
+}
+document.getElementById("nextBtn").onclick=()=>{
+  quiz.i++;
+  if(quiz.i<quiz.list.length)showQ(); else showResult();
+};
+function showResult(){
+  document.getElementById("quizPlay").style.display="none";
+  const box=document.getElementById("quizResult");
+  box.style.display="block";
+  const pct=Math.round(quiz.score/quiz.list.length*100);
+  box.innerHTML=`<div class="result">
+    <h3>${pct>=80?"🎉 훌륭해요!":pct>=60?"👍 좋아요":"💪 복습해요"}</h3>
+    <div class="sc">${quiz.score} / ${quiz.list.length} (${pct}%)</div>
+    ${quiz.wrong.length?`<div class="wronglist">${
+      [...new Map(quiz.wrong.map(v=>[v.w,v])).values()].map(v=>
+      `<div class="wrongitem"><b>${esc(v.w)}</b> ${v.y?`<span style="color:var(--accent2)">${esc(v.y)}</span> `:""}— ${esc(v.m)}
+       ${v.n?`<div style="color:var(--sub);margin-top:4px">${noteHtml(v.n)}</div>`:""}</div>`).join("")}</div>`:""}
+    <button class="btn" onclick="location.reload()">다시 풀기</button>
+  </div>`;
+}
+
+/* ---------- 간격 반복(SRS) ---------- */
+const SRS_KEY='jpWordSRS_v1';
+const SRS_INT=[0,1,3,7,14,30];
+const SRS_NEW_PER_DAY=8;
+const dayNo=()=>Math.floor(Date.now()/86400000);
+const srsLoad=()=>{try{return JSON.parse(localStorage.getItem(SRS_KEY))||{}}catch(e){return {}}};
+const srsSave=s=>{try{localStorage.setItem(SRS_KEY,JSON.stringify(s))}catch(e){}};
+
+const catBox=document.getElementById("srsCats");
+catBox.innerHTML=`<label class="qopt"><input type="checkbox" id="srsAllCats" checked> 모든 분류에서 출제 (끄면 분류를 고를 수 있어요)</label>
+  <div class="filters" id="srsChips" style="display:none">${CATS.map(c=>`<span class="chip on" data-c="${c}">${CATNAME[c]}</span>`).join("")}</div>`;
+let srsCats=new Set(CATS);
+document.getElementById("srsAllCats").onchange=e=>{
+  document.getElementById("srsChips").style.display=e.target.checked?"none":"flex";
+  if(e.target.checked){srsCats=new Set(CATS);
+    document.querySelectorAll("#srsChips .chip").forEach(c=>c.classList.add("on"));}
+  renderDash();
+};
+document.getElementById("srsChips").onclick=e=>{
+  const chip=e.target.closest(".chip"); if(!chip)return;
+  const c=chip.dataset.c;
+  srsCats.has(c)?srsCats.delete(c):srsCats.add(c);
+  chip.classList.toggle("on",srsCats.has(c));
+  renderDash();
+};
+const srsPool=()=>VOCAB.filter(v=>srsCats.has(v.t));
+
+function srsCounts(){
+  const s=srsLoad(), d=dayNo(); let dueN=0,newN=0,learned=0;
+  srsPool().forEach(v=>{
+    const r=s[v.w];
+    if(!r)newN++;
+    else{ learned++; if(r.due<=d)dueN++; }
+  });
+  return {due:dueN,new:newN,learned,total:srsPool().length};
+}
+function renderDash(){
+  const c=srsCounts();
+  document.getElementById("srsDash").innerHTML=
+    `<div>오늘 복습 <b>${c.due}</b></div><div>새 단어 <b>${Math.min(c.new,SRS_NEW_PER_DAY)}</b></div>`+
+    `<div>학습함 <b>${c.learned}</b> / ${c.total}</div>`;
+}
+function srsBuildQueue(){
+  const s=srsLoad(), d=dayNo(), pool=srsPool();
+  const due=pool.filter(v=>s[v.w]&&s[v.w].due<=d);
+  const fresh=pool.filter(v=>!s[v.w]).slice(0,SRS_NEW_PER_DAY);
+  return shuffle(due.concat(fresh));
+}
+let srsS={queue:[],i:0,cur:null};
+document.getElementById("srsStartBtn").onclick=()=>{
+  srsS={queue:srsBuildQueue(),i:0,cur:null};
+  if(!srsS.queue.length){srsFinish(true);return;}
+  document.getElementById("srsStart").style.display="none";
+  document.getElementById("srsDone").style.display="none";
+  document.getElementById("srsPlay").style.display="block";
+  srsShow();
+};
+function srsShow(){
+  srsS.cur=srsS.queue[srsS.i];
+  const v=srsS.cur;
+  document.getElementById("srsCount").textContent=`${srsS.i+1} / ${srsS.queue.length}`;
+  document.getElementById("srsRemain").textContent=`남은 ${srsS.queue.length-srsS.i}`;
+  document.getElementById("srsBar").style.width=(srsS.i/srsS.queue.length*100)+"%";
+  document.getElementById("srsWord").textContent=v.w;
+  document.getElementById("srsReveal").classList.remove("show");
+  document.getElementById("srsRevealWrap").style.display="block";
+  document.getElementById("srsGrade").style.display="none";
+}
+document.getElementById("srsRevealBtn").onclick=()=>{
+  document.getElementById("srsReveal").innerHTML=revealHtml(srsS.cur);
+  document.getElementById("srsReveal").classList.add("show");
+  document.getElementById("srsRevealWrap").style.display="none";
+  document.getElementById("srsGrade").style.display="flex";
+};
+document.querySelectorAll("#srsGrade .grade").forEach(b=>b.onclick=()=>{
+  const g=b.dataset.g, s=srsLoad(), d=dayNo(), w=srsS.cur.w;
+  const r=s[w]||{box:0,due:d};
+  if(g==="good")r.box=Math.min(5,r.box+1);
+  else if(g==="hard")r.box=Math.max(1,r.box);
+  else r.box=1;
+  r.due=d+SRS_INT[r.box];
+  r.seen=d;
+  s[w]=r; srsSave(s);
+  if(g==="again")srsS.queue.push(srsS.cur);   // 몰랐던 건 오늘 안에 한 번 더
+  srsS.i++;
+  if(srsS.i<srsS.queue.length)srsShow(); else srsFinish(false);
+});
+function srsFinish(nothingDue){
+  document.getElementById("srsPlay").style.display="none";
+  document.getElementById("srsStart").style.display="none";
+  const box=document.getElementById("srsDone");
+  box.style.display="block";
+  const c=srsCounts();
+  box.innerHTML=`<div class="result">
+    <h3>${nothingDue?"✅ 오늘 볼 단어가 없어요":"🎉 오늘 학습 끝!"}</h3>
+    <div class="desc">${nothingDue?"복습 예정일이 아직 안 됐어요. 단어 카드로 훑어보거나 퀴즈를 풀어 보세요.":
+      `학습함 <b>${c.learned}</b> / ${c.total} · 다음 복습은 날짜별로 자동 배치됩니다.`}</div>
+    <button class="btn" onclick="location.reload()">돌아가기</button></div>`;
+  renderDash();
+}
+document.getElementById("srsResetBtn").onclick=()=>{
+  if(confirm("단어장 학습 진도를 모두 지울까요? (한자 덱 진도는 그대로예요)")){
+    localStorage.removeItem(SRS_KEY); renderDash();
+  }
+};
+/* 진도 내보내기 / 불러오기 */
+const pad2=n=>(n<10?"0":"")+n;
+document.getElementById("srsExport").onclick=()=>{
+  const d=new Date();
+  const blob=new Blob([JSON.stringify({app:"jpWordSRS",v:1,data:srsLoad()},null,1)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`단어장진도_${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+};
+document.getElementById("srsImportBtn").onclick=()=>document.getElementById("srsFile").click();
+document.getElementById("srsFile").onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const j=JSON.parse(rd.result);
+      const inc=j.data||j;
+      const cur=srsLoad(); let merged=0;
+      Object.keys(inc).forEach(k=>{
+        const a=cur[k],b=inc[k];
+        if(!a||(b.seen||0)>(a.seen||0)){cur[k]=b;merged++;}
+      });
+      srsSave(cur); renderDash();
+      alert(`${merged}개 항목을 병합했어요.`);
+    }catch(err){alert("파일을 읽을 수 없어요: "+err.message);}
+  };
+  rd.readAsText(f);
+};
+renderDash();
+</script>
+</body>
+</html>

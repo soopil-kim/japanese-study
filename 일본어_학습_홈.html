@@ -22,6 +22,9 @@
   .deck{background:linear-gradient(135deg,#2d3850,#3a4a6a);border-color:transparent;color:#fff}
   .deck .d{color:#c7d2e6}
   .deck .arrow{color:#ffc64b}
+  .deck2{background:linear-gradient(135deg,#1f4a3c,#2b6a55);border-color:transparent;color:#fff}
+  .deck2 .d{color:#bfe3d4}
+  .deck2 .arrow{color:#ffc64b}
   .lesson{background:#fff;border:1px solid #e3ddcd;border-radius:14px;padding:14px 16px;margin-bottom:12px}
   .lesson .lh{font-weight:700;font-size:.92rem;margin-bottom:8px}
   .lesson .lh small{color:#8a8a8a;font-weight:400;margin-left:6px}
@@ -40,13 +43,19 @@
   <h1>📚 일본어 학습 홈</h1>
   <div class="lead">모든 학습 자료의 시작점 · 갤탭 홈 화면에 바로가기로 추가해 두면 편해요</div>
 
-  <div class="flow">💡 <b>추천 순서</b> — ① 한자 마스터 덱에서 <b>오늘 학습(SRS)</b> 5~10분 → ② 막히는 글자는 학습카드·쓰기연습 → ③ 아래 지문을 소리 내어 읽고 막히면 탭해서 확인</div>
+  <div class="flow">💡 <b>추천 순서</b> — ① 두 덱에서 <b>오늘 학습(SRS)</b> 각 5분 → ② 막히는 건 학습카드·쓰기연습 →
+    ③ 아래 지문을 소리 내어 읽고, 안 풀리는 <b>문장만</b> 뜻 버튼을 눌러 확인</div>
 
-  <h2>🔁 한자 (하나의 누적 덱)</h2>
+  <h2>🔁 누적 덱 (매일 여기서 시작)</h2>
   <a class="card deck" href="일본어한자퀴즈.html">
     <span class="arrow">→</span>
     <div class="t">한자 마스터 덱</div>
-    <div class="d">오늘 학습(간격 반복 SRS) · 학습카드+쓰기연습 · 4지선다 · 진도 동기화 — 새 단어는 여기에 계속 추가</div>
+    <div class="d">한자어의 <b>부수 분해·훈음·연상</b> · 오늘 학습(SRS) · 쓰기연습 · 4지선다 — 새 한자어는 여기에 계속 추가</div>
+  </a>
+  <a class="card deck2" href="일본어단어장.html">
+    <span class="arrow">→</span>
+    <div class="t">단어장 (접속사·부사·문법표현)</div>
+    <div class="d">한자로 안 되는 것들 — <b>접속사·부사·의성의태어·문법표현·경어·가타카나</b> · 뜻과 <b>쓰임·헷갈림 주의</b>를 예문과 함께</div>
   </a>
 
   <h2>📖 독해 지문 (단원별)</h2>
@@ -65,6 +74,10 @@
 <script>
 /* 단원이 늘면 이 배열에만 추가하면 됩니다 */
 const LESSONS=[
+  {id:"3회 · 問題3~7", topic:"코네 입사·PC교실·사과문·브라이덜페어·사용주의·스마호 의존증·TV이탈·착한사람증후군·이전안내 (128~141쪽, 9편)", files:[
+    {label:"원문 (탭 → 읽기·뜻)", href:"독해지문_3회.html"},
+    {label:"후리가나 (탭 → 뜻)", href:"독해지문_3회_후리가나.html"}
+  ]},
   {id:"2회 · 問題4~7", topic:"고양이·일기·오키나와 편지·건강·안내문 (83~91쪽)", files:[
     {label:"원문 (탭 → 읽기·뜻)", href:"독해지문_2회_問題4-7.html"},
     {label:"후리가나 (탭 → 뜻)", href:"독해지문_2회_問題4-7_후리가나.html"}
