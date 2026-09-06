@@ -47,7 +47,9 @@ function rubyHtml(k,r){
   return out;
 }
 
-/* 교재 원래 빈칸: [19] = 노란 박스 그대로 / [19:정답] = 정답을 채워 황토 밑줄+번호로 표시.
+/* 교재 원래 빈칸: [19] = 노란 박스 그대로 / [19:정답] = 정답을 표시 없이 본문처럼 렌더.
+   (정답 위치를 외워버리지 않도록 하이라이트를 하지 않는다 — 2026-09-06 지시.
+    어디가 빈칸이었는지는 데이터 파일에만 남는다.)
    채운 정답도 markup()을 다시 통과시켜 후리가나·클릭 사전이 그대로 적용된다(정답에 [ 없음 → 재귀 안전). */
 const BLANK_RE = /^\[(\d{1,2})(?::([^\]]+))?\]/;
 function markup(s){
@@ -56,7 +58,7 @@ function markup(s){
     if(s[i]==="["){
       const m=s.slice(i).match(BLANK_RE);
       if(m){
-        if(m[2]) out+=`<span class="blank filled"><sup class="bno">${m[1]}</sup>${markup(m[2])}</span>`;
+        if(m[2]) out+=markup(m[2]);
         else out+=`<span class="blank">${esc(m[0])}</span>`;
         i+=m[0].length; continue;
       }
