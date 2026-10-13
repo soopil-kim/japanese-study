@@ -79,9 +79,25 @@ function markup(s){
   return out;
 }
 
+/* 지문 제목(問題3 등)에도 후리가나 — 후리가나판에서만, 탭 사전 없이 루비만 얹는다 (2026-10-13 지시 "한자위에는 다 붙어야지") */
+function furiOnly(s){
+  if(!SHOW_FURI) return esc(s);
+  let out="",i=0;
+  while(i<s.length){
+    let hit=null;
+    for(let L=Math.min(MAXLEN,s.length-i);L>=1;L--){
+      const sub=s.substr(i,L);
+      if(Object.prototype.hasOwnProperty.call(DICT,sub)){hit=sub;break;}
+    }
+    if(hit){ const r=DICT[hit][0]; out+=r?rubyHtml(hit,r):esc(hit); i+=hit.length; }
+    else{ out+=esc(s[i]); i++; }
+  }
+  return out;
+}
+
 const out = document.getElementById("out");
 out.innerHTML = TEXTS.map(t=>
-  `<div class="lesson"><div class="lh">${esc(t.id)}<small>${esc(t.title)}</small></div>`+
+  `<div class="lesson"><div class="lh">${furiOnly(t.id)}<small>${furiOnly(t.title)}</small></div>`+
   t.paras.map(sents=>
     `<div class="jp">`+
     sents.map(([jp,ko])=>
