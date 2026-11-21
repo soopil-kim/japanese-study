@@ -54,6 +54,7 @@
   .chrow .hun{color:var(--ok);font-weight:700;white-space:nowrap;font-size:.95rem}
   .chrow .parts{color:var(--sub);font-size:.78rem}
   .chrow .story{margin-top:5px;font-size:.82rem;color:var(--text);opacity:.96}
+  .mnemo{display:block;width:100%;max-width:260px;margin:8px 0 2px;border-radius:10px;background:#fff}
   .notes{margin-top:7px;display:flex;flex-direction:column;gap:4px}
   .note{font-size:.74rem;color:var(--sub);border-left:2px solid var(--accent);padding-left:8px;line-height:1.45}
   .wordcard .hidden-blur{filter:blur(8px);opacity:.5;transition:.15s}
@@ -1012,6 +1013,13 @@ let flashList=WORDS.slice();
 let flashIdx=0;
 let flashRevealed=false;
 
+/* 연상 그림 (2026-11-21, ChatGPT 생성 · 파일 _연상그림/) — 글자 → 파일명 */
+const MNEMO_V='2';
+const MNEMO={"休":"01_休.webp","好":"02_好.webp","速":"03_速.webp","囲":"04_囲.webp","涼":"05_涼.webp","降":"06_降.webp","似":"07_似.webp","績":"08_績.webp","所":"09_所.webp","配":"10_配.webp"};
+function mnemoHtml(ch){
+  const f=MNEMO[ch];
+  return f?`<img class="mnemo" src="_연상그림/${f}?v=${MNEMO_V}" alt="${ch} 연상 그림" loading="lazy">`:'';
+}
 function notesHtml(arr){
   if(!arr||!arr.length)return '';
   return `<div class="notes">${arr.map(n=>`<div class="note">🔎 ${n}</div>`).join('')}</div>`;
@@ -1020,7 +1028,7 @@ function charRow(c){
   return `<div class="chrow"><span class="c">${c[0]}</span>
     <div class="cinfo">
       <div class="cline"><span class="hun">${c[1]}</span><span class="parts">${c[2]}</span></div>
-      <div class="story">💡 ${c[3]}</div>${notesHtml(c[4])}
+      <div class="story">💡 ${c[3]}</div>${mnemoHtml(c[0])}${notesHtml(c[4])}
     </div></div>`;
 }
 
@@ -1241,11 +1249,11 @@ function pick(el,opt,answer,q){
   if(q.type==='char'){
     ex.innerHTML=`<div class="ex-word">${q.data.ch} <small>${q.data.hun}</small></div>
       <div class="ex-c">${q.data.parts}</div>
-      <div class="ex-s">💡 ${q.data.story}</div>${notesHtml(q.data.notes)}`;
+      <div class="ex-s">💡 ${q.data.story}</div>${mnemoHtml(q.data.ch)}${notesHtml(q.data.notes)}`;
   }else{
     const w=q.data;
     ex.innerHTML=`<div class="ex-word">${w.w} <small>${w.y} · ${w.m}</small></div>`+
-      w.c.map(c=>`<div class="ex-c"><b>${c[0]} ${c[1]}</b> — ${c[2]}</div><div class="ex-s">💡 ${c[3]}</div>${notesHtml(c[4])}`).join('')+
+      w.c.map(c=>`<div class="ex-c"><b>${c[0]} ${c[1]}</b> — ${c[2]}</div><div class="ex-s">💡 ${c[3]}</div>${mnemoHtml(c[0])}${notesHtml(c[4])}`).join('')+
       confuseHtml(w,'');
   }
   ex.classList.add('show');
@@ -1340,7 +1348,7 @@ function srsShow(){
 function srsRevealFn(){
   const w=srsS.cur,ex=document.getElementById('srsReveal');
   ex.innerHTML=`<div class="ex-word">${w.w} <small>${w.y} · ${w.m}</small></div>`+
-    w.c.map(c=>`<div class="ex-c"><b>${c[0]} ${c[1]}</b> — ${c[2]}</div><div class="ex-s">💡 ${c[3]}</div>${notesHtml(c[4])}`).join('')+
+    w.c.map(c=>`<div class="ex-c"><b>${c[0]} ${c[1]}</b> — ${c[2]}</div><div class="ex-s">💡 ${c[3]}</div>${mnemoHtml(c[0])}${notesHtml(c[4])}`).join('')+
     confuseHtml(w,'');
   ex.classList.add('show');
   document.getElementById('srsRevealWrap').style.display='none';

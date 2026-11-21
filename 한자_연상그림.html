@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한자 연상 그림</title>
+<style>
+  html{font-size:20px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Malgun Gothic','Apple SD Gothic Neo',system-ui,sans-serif;
+    background:linear-gradient(160deg,#f7f5ef,#efe9da);color:#20242c;min-height:100vh;padding:18px 0 30px;line-height:1.5}
+  .top{max-width:560px;margin:0 auto 10px;padding:0 16px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .top h1{font-size:1.15rem}
+  .top a{font-size:.75rem;color:#5a4a2a}
+  .track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .track::-webkit-scrollbar{display:none}
+  .slide{flex:0 0 100%;scroll-snap-align:center;display:flex;justify-content:center;padding:0 16px}
+  .card{width:100%;max-width:520px;background:#fff;border:1px solid #e3ddcd;border-radius:16px;overflow:hidden;
+    box-shadow:0 4px 14px rgba(0,0,0,.05)}
+  .card img{display:block;width:100%;height:auto;aspect-ratio:1/1;background:#fff}
+  .ex{border-top:1px solid #eee6d6;padding:12px 16px 14px;display:flex;align-items:center;gap:14px}
+  .ex .lab{font-size:.68rem;color:#8a7a5a;background:#f2ece0;border-radius:999px;padding:3px 9px;white-space:nowrap}
+  .ex .w{font-size:1.45rem;font-weight:700;line-height:1.2}
+  .ex .y{font-size:.82rem;color:#6b7280}
+  .ex .m{margin-left:auto;font-size:.92rem;font-weight:700;color:#2d5a3a;text-align:right}
+  .nav{max-width:560px;margin:14px auto 0;padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .nav button{font:inherit;font-size:.9rem;border:1px solid #ddd3bf;background:#fff;color:#5a4a2a;
+    border-radius:999px;padding:9px 18px;cursor:pointer}
+  .nav button:disabled{opacity:.35;cursor:default}
+  .count{font-size:.85rem;color:#6b7280}
+  .dots{display:flex;justify-content:center;gap:7px;margin-top:12px}
+  .dots i{width:8px;height:8px;border-radius:50%;background:#d8cfbb;cursor:pointer}
+  .dots i.on{background:#c99a4b}
+  .hint{text-align:center;font-size:.7rem;color:#9a9a9a;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>🖼️ 한자 연상 그림</h1>
+  <a href="일본어_학습_홈.html">← 학습 홈</a>
+</div>
+<div class="track" id="track"></div>
+<div class="nav">
+  <button id="prev">← 이전</button>
+  <span class="count" id="count"></span>
+  <button id="next">다음 →</button>
+</div>
+<div class="dots" id="dots"></div>
+<div class="hint">옆으로 밀거나 ← → 키로 넘겨요 · 부품 색 = 그림 속 같은 색 사물</div>
+
+<script>
+/* 그림 = _연상그림/ (ChatGPT 생성, 2026-11-21) · 예시 단어 = 일본어한자퀴즈.html WORDS 에서 그 글자가 든 단어 */
+const V='2';
+const CARDS=[
+  {f:"01_休.webp", w:"夏休み", y:"なつやすみ", m:"여름방학"},
+  {f:"02_好.webp", w:"好む",   y:"このむ",     m:"선호하다·즐기다"},
+  {f:"03_速.webp", w:"早速",   y:"さっそく",   m:"즉시·재빨리"},
+  {f:"04_囲.webp", w:"周囲",   y:"しゅうい",   m:"주위"},
+  {f:"05_涼.webp", w:"涼しい", y:"すずしい",   m:"시원하다"},
+  {f:"06_降.webp", w:"以降",   y:"いこう",     m:"이후"},
+  {f:"07_似.webp", w:"似る",   y:"にる",       m:"닮다"},
+  {f:"08_績.webp", w:"成績",   y:"せいせき",   m:"성적"},
+  {f:"09_所.webp", w:"場所",   y:"ばしょ",     m:"장소"},
+  {f:"10_配.webp", w:"配る",   y:"くばる",     m:"나눠 주다"}
+];
+const track=document.getElementById('track'), dots=document.getElementById('dots');
+track.innerHTML=CARDS.map((c,i)=>`
+  <div class="slide"><div class="card">
+    <img src="_연상그림/${c.f}?v=${V}" alt="${c.w} 연상 그림" ${i>1?'loading="lazy"':''}>
+    <div class="ex"><span class="lab">예시</span>
+      <div><div class="w">${c.w}</div><div class="y">${c.y}</div></div>
+      <div class="m">${c.m}</div></div>
+  </div></div>`).join('');
+dots.innerHTML=CARDS.map((_,i)=>`<i data-i="${i}"></i>`).join('');
+let cur=0;
+function go(i){ i=Math.max(0,Math.min(CARDS.length-1,i)); track.scrollTo({left:i*track.clientWidth}); }
+function sync(){
+  cur=track.clientWidth?Math.round(track.scrollLeft/track.clientWidth):0;
+  document.getElementById('count').textContent=`${cur+1} / ${CARDS.length}`;
+  document.getElementById('prev').disabled=cur===0;
+  document.getElementById('next').disabled=cur===CARDS.length-1;
+  [...dots.children].forEach((d,i)=>d.classList.toggle('on',i===cur));
+}
+track.addEventListener('scroll',()=>requestAnimationFrame(sync),{passive:true});
+window.addEventListener('resize',()=>go(cur));
+document.getElementById('prev').onclick=()=>go(cur-1);
+document.getElementById('next').onclick=()=>go(cur+1);
+dots.onclick=e=>{ if(e.target.dataset.i) go(+e.target.dataset.i); };
+document.addEventListener('keydown',e=>{ if(e.key==='ArrowLeft')go(cur-1); if(e.key==='ArrowRight')go(cur+1); });
+sync();
+</script>
+</body>
+</html>
